@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "eggtart"
+version = "0.1.0"
+description = ""
+authors = ["khkim <kkh147.17.3@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+fastapi = "^0.110.0"
+uvicorn = "^0.28.0"
+sqlalchemy = "^1.4.52"
+fastapi-utils = "^0.2.1"
+fastapi-oauth2 = "^1.0.0"
+python-dotenv = "^1.0.1"
+psycopg2 = "^2.9.9"
+psycopg2-binary = "^2.9.9"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
