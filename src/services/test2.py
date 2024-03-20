@@ -3,12 +3,14 @@ from typing import Annotated
 from fastapi import Depends
 from sqlalchemy.orm.session import Session
 
-from database import get_db
-from models import Product
-from repositories.test import ProductRepository
+from dependencies import get_db
+from schemas import models
+from src.repositories.test import ProductRepository
+
+Product = models.Product
 
 
-class ProductService:
+class CategoryService:
     db: Session
     prod_repository: ProductRepository
 
@@ -16,10 +18,10 @@ class ProductService:
                  db: Annotated[Session, Depends(get_db)],
                  product_repository: Annotated[ProductRepository, Depends(ProductRepository)],
                  ):
-        print("서비스 생성됨")
+        print("카테고리 서비스 생성됨")
         self.db = db
         self.prod_repository = product_repository
 
     def get_items(self) -> list[Product]:
-        print("서비스 호출됨")
+        print("카테고리 서비스 호출됨")
         return self.prod_repository.get_items()

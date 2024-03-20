@@ -4,9 +4,8 @@ from typing import Tuple, List
 import enum
 
 from sqlalchemy import Boolean, DateTime, Enum, ForeignKey, Integer, String, BigInteger, Column
-from sqlalchemy.orm import declarative_base, relationship, Mapped
-
-Base = declarative_base()
+from sqlalchemy.orm import relationship, Mapped
+from database import Base
 
 
 # 참고용
@@ -15,7 +14,7 @@ class Marketplace(enum.Enum):
     A29CM = "A29CM"
     NAVER = "NAVER"
     OLIVEYOUNG = "OLIVEYOUNG"
-    
+
 
 def callable_func(obj):
     a = [str(e.value) for e in obj]
