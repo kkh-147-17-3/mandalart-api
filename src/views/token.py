@@ -17,5 +17,5 @@ class TokenView:
     token_service: TokenService = Depends(TokenService)
 
     @router.get("/token")
-    def get_token(self, req: Request) -> str:
+    def get_token(self, req: Request) -> dict:
         return self.token_service.get_token(req.user)

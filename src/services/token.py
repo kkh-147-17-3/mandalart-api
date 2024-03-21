@@ -13,10 +13,11 @@ class TokenService:
     def __init__(self, user_repository: Annotated[UserRepository, Depends()]):
         self.user_repository = user_repository
 
-    def get_token(self, oauth2_user: User) -> str:
+    def get_token(self, oauth2_user: User) -> dict:
         social_provider_id = str(oauth2_user.id)
         social_provider = SocialProvider[oauth2_user.provider.upper()]
 
-        user = self.user_repository.get_user_by_social_id_and_provider(social_provider_id, social_provider)
+        user = self.user_repository.find_by(social_id=social_provider_id,
+                                            social_provider=social_provider).pop()
 
-        return social_provider_id
+        return user.__dict__
