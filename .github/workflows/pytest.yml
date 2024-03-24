@@ -12,10 +12,17 @@ jobs:
           python-version: 3.12
       - name: Install poetry
         uses: abatilo/actions-poetry@v2
-      - name: Setup a local virtual environment (if no poetry.toml file)
+      - name: Setup a local virtual environment
         run: |
           poetry config virtualenvs.create true --local
           poetry config virtualenvs.in-project true --local
+      - name: Setup .env file
+        run: |
+          echo "DB_URL=$DB_URL" >> .env
+          echo "DB_USER=$DB_USER" >> .env
+          echo "DB_PASSWORD=$DB_PASSWORD" >> .env
+          echo "DB_DATABASE=$DB_DATABASE" >> .env
+        
       - uses: actions/cache@v3
         name: Define a cache for the virtual environment based on the dependencies lock file
         with:
