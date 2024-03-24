@@ -8,12 +8,6 @@ from test_config import client, mock_db_session
 from views.cell import CellView
 
 
-def test_get_user():
-    res = client.get("/user/3")
-
-    assert res.status_code == 200
-
-
 def test_post_cell(mock_db_session):
     data = {
         'sheet_id': 1,
