@@ -21,4 +21,7 @@ class CreateSheetDto(BaseModel):
 
 
 class GetSheetInfoDto(GetSheetDto):
+    """
+    depth_1_cell: 만다르트의 가장 정중앙에 위치한 셀을 의미합니다.
+    """
     depth_1_cell: GetCellWithChildrenDto
