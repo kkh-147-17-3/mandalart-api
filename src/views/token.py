@@ -7,7 +7,7 @@ from fastapi_utils.inferring_router import InferringRouter
 from starlette.requests import Request
 
 from services.token import TokenService
-from src.oauth import on_auth
+from oauth import on_auth
 
 router = InferringRouter()
 
