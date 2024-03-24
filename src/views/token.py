@@ -16,6 +16,6 @@ router = InferringRouter()
 class TokenView:
     token_service: TokenService = Depends(TokenService)
 
-    @router.get("/token")
+    # @router.get("/token")
     def get_token(self, req: Request) -> dict:
         return self.token_service.get_token(req.user)
