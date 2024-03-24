@@ -22,6 +22,7 @@ jobs:
           echo "DB_USER=$DB_USER" >> .env
           echo "DB_PASSWORD=$DB_PASSWORD" >> .env
           echo "DB_DATABASE=$DB_DATABASE" >> .env
+          echo "$DB_URL $DB_USER $DB_PASSWORD $DB_DATABASE"
         
       - uses: actions/cache@v3
         name: Define a cache for the virtual environment based on the dependencies lock file
