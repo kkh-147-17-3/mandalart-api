@@ -16,9 +16,17 @@ load_dotenv(os.path.join(BASE_DIR, ".env"))
 
 Base.metadata.create_all(bind=engine)
 
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    ENCODERS_BY_TYPE[datetime] = lambda date_obj: date_obj.strftime("%Y-%m-%d %H:%M:%S")
+    yield
+
+
 app = FastAPI(
     title="eggtart API",
-    description="eggtart API에 대한 docs입니다."
+    description="eggtart API에 대한 docs입니다.",
+    lifespan=lifespan
 )
 # app.include_router(oauth2_router)
 app.include_router(user_router)
@@ -32,13 +40,6 @@ app.add_middleware(CORSMiddleware,
                    allow_credentials=True,
                    allow_methods=["*"],
                    allow_headers=["*"], )
-
-
-@asynccontextmanager
-def lifespan():
-    ENCODERS_BY_TYPE[datetime] = lambda date_obj: date_obj.strftime("%Y-%m-%d %H:%M:%S")
-    yield
-
 
 if __name__ == "__main__":
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
