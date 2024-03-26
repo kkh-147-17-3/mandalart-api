@@ -40,12 +40,17 @@
             "formatter": "simple",
             "level": "DEBUG",
             "stream": "ext://sys.stdout"
+        },
+        "queue_handler": {
+            "class": "logging.handlers.QueueHandler",
+            "handlers": ["console", "stderr", "file"],
+            "respect_handler_level": true
         }
     },
     "loggers": {
         "main": {
             "level": "DEBUG", 
-            "handlers": ["console", "stderr", "file"]
+            "handlers": ["queue_handler"]
         },
         "gunicorn.error": {
             "level": "INFO",
