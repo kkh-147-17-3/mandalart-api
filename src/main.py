@@ -9,7 +9,7 @@ from starlette.middleware.cors import CORSMiddleware
 import uvicorn
 
 from database import Base, engine
-from views import user_router, token_router, sheet_router, cell_router
+from views import user_router, token_router, sheet_router, cell_router, healthcheck_router
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 load_dotenv(os.path.join(BASE_DIR, ".env"))
@@ -33,6 +33,7 @@ app.include_router(user_router)
 app.include_router(token_router)
 app.include_router(sheet_router)
 app.include_router(cell_router)
+app.include_router(healthcheck_router)
 
 # app.add_middleware(OAuth2Middleware, config=oauth2_config, callback=on_auth)
 app.add_middleware(CORSMiddleware,
