@@ -1,0 +1,61 @@
+{
+    "version": 1,
+    "disable_existing_loggers": false,
+    "formatters": {
+        "simple": {
+            "format": "%(levelname)s: %(message)s"
+        },
+        "json": {
+            "()": "logger.JsonFormatter",
+            "fmt_keys": {
+              "level": "levelname",
+              "message": "message",
+              "timestamp": "timestamp",
+              "logger": "name",
+              "module": "module",
+              "function": "funcName",
+              "line": "lineno",
+              "thread_name": "threadName"
+            }
+          }
+    },
+    "handlers": {
+        "file": {
+            "class": "logging.handlers.RotatingFileHandler",
+            "formatter": "json",
+            "level": "DEBUG",
+            "filename": "/var/log/fastapi/my_app.jsonl",
+            "maxBytes": 10000,
+            "backupCount": 3,
+            "encoding": "utf-8"
+        },
+        "stderr": {
+            "class": "logging.StreamHandler",
+            "formatter": "simple",
+            "level": "WARNING",
+            "stream": "ext://sys.stderr"
+        },
+        "console": {
+            "class": "logging.StreamHandler",
+            "formatter": "simple",
+            "level": "DEBUG",
+            "stream": "ext://sys.stdout"
+        },
+        "queue_handler": {
+            "class": "logging.handlers.QueueHandler",
+            "handlers": ["console", "stderr", "file"],
+            "respect_handler_level": true
+        }
+    },
+    "loggers": {
+        "main": {
+            "level": "DEBUG", 
+            "handlers": ["queue_handler"]
+        },
+        "gunicorn.error": {
+            "level": "INFO",
+            "handlers": ["file"],
+            "propagate": false
+        }
+    }
+}

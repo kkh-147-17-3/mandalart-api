@@ -38,7 +38,7 @@ class CellService:
         if not sheet:
             raise ValueError("sheet not found")
 
-        if sheet.user_id != user_id:
+        if sheet.owner_id != user_id:
             raise UnauthorizedError()
 
         if prev_cell := self.cell_repo.find_by(depth=dto.depth, order=dto.order, sheet_id=dto.sheet_id):
