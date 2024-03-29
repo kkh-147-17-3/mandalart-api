@@ -14,7 +14,7 @@ from starlette.middleware.cors import CORSMiddleware
 import uvicorn
 
 from database import Base, engine
-from errors.error import EntityNotFoundException
+from errors.exceptions import EntityNotFoundException
 from models.response import GenericResponse, ErrorResponse
 from views import user_router, token_router, sheet_router, cell_router
 

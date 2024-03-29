@@ -9,7 +9,7 @@ from repositories.sheet import SheetRepository
 from schemas import Cell
 from schemas.sheet import Sheet
 from repositories.cell import CellRepository
-from errors.error import UnauthorizedException
+from errors.exceptions import UnauthorizedException
 from transaction import Transaction
 
 MIN_ORDER = 0

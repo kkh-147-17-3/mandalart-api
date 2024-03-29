@@ -7,7 +7,7 @@ from repositories import CellRepository
 from schemas import Cell, Sheet
 from services import CellService
 from test_config import mock_db_session
-from errors.error import UnauthorizedException
+from errors.exceptions import UnauthorizedException
 
 
 @pytest.fixture
