@@ -2,7 +2,7 @@ from datetime import datetime
 
 from pydantic import BaseModel
 
-from models.cell import GetCellWithChildrenDto
+from models.cell import GetCellWithChildrenDto, GetCellDto
 
 
 class GetSheetDto(BaseModel):
@@ -22,6 +22,6 @@ class CreateSheetDto(BaseModel):
 
 class GetSheetInfoDto(GetSheetDto):
     """
-    depth_1_cell: 만다르트의 가장 정중앙에 위치한 셀을 의미합니다.
+    step_1_cell: 만다르트의 가장 정중앙에 위치한 셀을 의미합니다.
     """
-    depth_1_cell: GetCellWithChildrenDto
+    depth_1_cells: list[GetCellDto]

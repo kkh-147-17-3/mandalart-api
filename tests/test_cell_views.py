@@ -13,7 +13,7 @@ def test_post_cell(mock_db_session):
         'sheet_id': 1,
         'goal': 'test',
         'color': '#fff',
-        'depth': 2,
+        'step': 2,
         'order': 3,
         'parent_order': 1
     }
@@ -23,10 +23,10 @@ def test_post_cell(mock_db_session):
             id=4,
             color=data['color'],
             goal=data['goal'],
-            depth=data['depth'],
+            step=data['step'],
             order=data['order'],
             parent=Cell(
-                depth=data['depth'] - 1,
+                step=data['step'] - 1,
                 order=data['parent_order'],
                 id=3,
                 color='#fff',
@@ -41,6 +41,6 @@ def test_post_cell(mock_db_session):
         assert res_data['color'] == data['color']
         assert res_data['goal'] == data['goal']
         assert res_data['order'] == data['order']
-        assert res_data['depth'] == data['depth']
+        assert res_data['step'] == data['step']
         assert res_data['parent']['order'] == data['parent_order']
-        assert res_data['parent']['depth'] == data['depth'] - 1
+        assert res_data['parent']['step'] == data['step'] - 1

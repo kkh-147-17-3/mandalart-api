@@ -7,7 +7,7 @@ from repositories import CellRepository
 from schemas import Cell, Sheet
 from services import CellService
 from test_config import mock_db_session
-from errors.error import UnauthorizedError
+from errors.error import UnauthorizedException
 
 
 @pytest.fixture
@@ -31,7 +31,7 @@ def test_create_cell_raise_error_when_no_parent(mock_service):
             'sheet_id': 1,
             'goal': 'test',
             'color': '#fff',
-            'depth': 2,
+            'step': 2,
             'order': 3,
             'parent_order': 3
         })
@@ -51,13 +51,13 @@ def test_create_cell_raise_error_already_exists(mock_service):
         patch.object(mock_service, 'cell_repo', mock_cell_repo),
         patch.object(mock_service, 'sheet_repo', mock_sheet_repo),
         ):
-        mock_cell_repo.find_by.side_effect = [Cell(depth=2,order=3)]
+        mock_cell_repo.find_by.side_effect = [Cell(step=2,order=3)]
         mock_sheet_repo.find_by_id.return_value = Sheet(owner_id=1)
         data = CreateCellDto(**{
             'sheet_id': 1,
             'goal': 'test',
             'color': '#fff',
-            'depth': 2,
+            'step': 2,
             'order': 3,
             'parent_order': 3
         })
@@ -77,19 +77,19 @@ def test_create_cell_raise_error_when_unauthorized(mock_service):
         patch.object(mock_service, 'cell_repo', mock_cell_repo),
         patch.object(mock_service, 'sheet_repo', mock_sheet_repo),
         ):
-        mock_cell_repo.find_by.side_effect = [Cell(depth=2,order=3)]
+        mock_cell_repo.find_by.side_effect = [Cell(step=2,order=3)]
         mock_sheet_repo.find_by_id.return_value = Sheet(owner_id=2)
         data = CreateCellDto(**{
             'sheet_id': 1,
             'goal': 'test',
             'color': '#fff',
-            'depth': 2,
+            'step': 2,
             'order': 3,
             'parent_order': 3
         })
         try:
             mock_service.create_cell(data)
             assert False
-        except UnauthorizedError:
+        except UnauthorizedException:
             assert True
         assert mock_cell_repo.find_by.call_count == 0
