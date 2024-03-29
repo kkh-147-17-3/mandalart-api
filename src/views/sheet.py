@@ -13,7 +13,8 @@ router = InferringRouter()
 class SheetView:
     sheet_service: SheetService = Depends(SheetService)
 
-    @router.post("/sheet", response_model=GenericResponse[GetSheetDto], summary="새로운 만다르트 시트를 생성합니다.", tags=["sheet"])
+    @router.post("/sheet", response_model=GenericResponse[GetSheetDto], summary="새로운 만다르트 시트를 생성합니다.", tags=["sheet"],
+                 description="새 시트를 생성합니다. 생성 시 시트의 81개 셀을 모두 생성합니다.")
     def create_sheet(self, dto: CreateSheetDto):
         user_id = 1
         result = self.sheet_service.create_sheet(dto, user_id)

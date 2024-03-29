@@ -9,7 +9,7 @@ from repositories.sheet import SheetRepository
 from schemas import Cell
 from schemas.sheet import Sheet
 from repositories.cell import CellRepository
-from errors.exceptions import UnauthorizedException
+from errors.exceptions import UnauthorizedException, EntityNotFoundException
 from transaction import Transaction
 
 MIN_ORDER = 0
@@ -57,7 +57,10 @@ class SheetService:
             raise UnauthorizedException()
         if sheet is None:
             return None
-        step_1_cell = self.cell_repo.find_by(sheet_id=sheet.id, step=1).pop()
+        cells = self.cell_repo.find_by(sheet_id=sheet.id, step=1)
+        if not cells:
+            raise EntityNotFoundException(Cell, sheet_id=sheet.id, step=1)
+        step_1_cell = cells.pop()
         step_2_cells = step_1_cell.children
         depth_1_cells = list(step_2_cells)
         depth_1_cells.insert(4, step_1_cell)
