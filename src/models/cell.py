@@ -22,7 +22,7 @@ class BaseCellDto(BaseModel):
     |6|7|8|\n
     """
     step: int = Field(None, ge=1, le=3)
-    order: int = Field(None, ge=0, le=7)
+    # order: int = Field(None, ge=0, le=7)
 
 
 class CreateCellDto(BaseCellDto):
