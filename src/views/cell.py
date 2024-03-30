@@ -15,7 +15,7 @@ router = InferringRouter()
 class CellView:
     cell_service: CellService = Depends(CellService)
 
-    @router.put("/cell/{cell_id}", response_model=GenericResponse[GetCellDto],
+    @router.patch("/cell/{cell_id}", response_model=GenericResponse[GetCellDto],
                 summary="만다르트 셀 한 개의 내용을 수정합니다.", tags=["cell"])
     def update_cell(self, cell_id: int, dto: UpdateCellDto):
         user_id = 1
