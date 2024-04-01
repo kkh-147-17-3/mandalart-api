@@ -57,7 +57,16 @@ class GetCellWithChildrenDto(BaseCellDto):
 
 
 class UpdateCellDto(BaseModel):
-    goal: str | None = None
-    color: str | None = None  # FFFFFFFF
-    is_completed: bool | None = None
+    goal: str | None = Field(None, description='목표 내용')
+    color: str | None = Field(None, description='#을 제외한 셀 색상 hex code 8자리(ex: FFFFFFFF)')
+    is_completed: bool | None = Field(None, description='목표 완료 여부')
     _validate_color = validator('color', allow_reuse=True)(validate_color)
+
+    class Config:
+        schema_extra = {
+            "examples": [{
+                "goal": "만다르트 테스트 목표",
+                "color": "FFAABB00",
+                "is_completed": False
+            }]
+        }
