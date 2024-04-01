@@ -2,7 +2,7 @@ from datetime import datetime
 
 from pydantic import BaseModel
 
-from models.cell import GetCellWithChildrenDto, GetCellDto
+from models.cell import GetCellDto
 
 
 class GetSheetDto(BaseModel):
@@ -14,6 +14,15 @@ class GetSheetDto(BaseModel):
 
     class Config:
         orm_mode = True
+        schema_extra = {
+            "examples": [{
+                "id": 1,
+                "owner_id": 1,
+                "name": "NAME",
+                "created_at": "2024-01-01 12:00:00",
+                "modified_at": "2024-01-01 12:00:00",
+            }]
+        }
 
 
 class CreateSheetDto(BaseModel):
