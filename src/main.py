@@ -61,17 +61,8 @@ async def validation_exception_handler(_: Request, exc: ValidationException):
     )
 
 
-@app.exception_handler(ResponseValidationError)
-async def validation_exception_handler(_: Request, exc: ValidationException):
-    res_code = status.HTTP_422_UNPROCESSABLE_ENTITY
-    return JSONResponse(
-        status_code=res_code,
-        content={"status": res_code, "data": exc.errors(), "message": "Response validation error"}
-    )
-
-
 @app.exception_handler(EntityNotFoundException)
-async def validation_exception_handler(_: Request, exc: EntityNotFoundException):
+async def entity_not_found_exception_handler(_: Request, exc: EntityNotFoundException):
     res_code = status.HTTP_404_NOT_FOUND
     return JSONResponse(
         status_code=res_code,
@@ -80,7 +71,7 @@ async def validation_exception_handler(_: Request, exc: EntityNotFoundException)
 
 
 @app.exception_handler(Exception)
-async def validation_exception_handler(_: Request, exc: Exception):
+async def general_exception_handler(_: Request, exc: Exception):
     res_code = status.HTTP_500_INTERNAL_SERVER_ERROR
     return JSONResponse(
         status_code=res_code,
