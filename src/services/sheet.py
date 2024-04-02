@@ -4,6 +4,7 @@ from fastapi import Depends
 from sqlalchemy.orm import Session
 
 from dependencies import get_db
+from models.cell import GetCellDto
 from models.sheet import CreateSheetDto, GetSheetInfoDto
 from repositories.sheet import SheetRepository
 from schemas import Cell
@@ -53,6 +54,9 @@ class SheetService:
 
     def get_by_sheet_id(self, sheet_id: int, user_id: int) -> GetSheetInfoDto | None:
         sheet = self.sheet_repo.find_by_id(sheet_id)
+        if sheet is None:
+            raise EntityNotFoundException(Sheet, id=sheet_id)
+
         if sheet.owner_id != user_id:
             raise UnauthorizedException()
         if sheet is None:
@@ -64,4 +68,4 @@ class SheetService:
         step_2_cells = step_1_cell.children
         depth_1_cells = list(step_2_cells)
         depth_1_cells.insert(4, step_1_cell)
-        return GetSheetInfoDto(**sheet.__dict__, depth_1_cells=depth_1_cells)
+        return GetSheetInfoDto(**sheet.__dict__, depth_1_cells=[GetCellDto(**cell.__dict__) for cell in depth_1_cells])
