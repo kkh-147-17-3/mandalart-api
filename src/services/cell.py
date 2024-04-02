@@ -29,38 +29,38 @@ class CellService:
         self.sheet_repo = sheet_repo
         self.transaction = transaction
 
-    def create_cell(self, dto: CreateCellDto, user_id: int = 1):
-        cell = Cell(
-            step=dto.step,
-            order=dto.order,
-            goal=dto.goal,
-            sheet_id=dto.sheet_id,
-            color=dto.color
-        )
-
-        sheet = self.sheet_repo.find_by_id(dto.sheet_id)
-        if not sheet:
-            raise ValueError("sheet not found")
-
-        if sheet.owner_id != user_id:
-            raise UnauthorizedException()
-
-        if prev_cell := self.cell_repo.find_by(step=dto.step, order=dto.order, sheet_id=dto.sheet_id):
-            raise ValueError(f"Cell with step {dto.step} and order {dto.order} has been already existed")
-
-        if dto.step > 1:
-            parent_cells = self.cell_repo.find_by(step=dto.step - 1, sheet_id=dto.sheet_id,
-                                                  order=dto.parent_order)
-            if not parent_cells:
-                raise ValueError("Parent cell not found")
-            parent_cell = parent_cells.pop()
-
-            parent_cell.children.append(cell)
-            self.db.add(parent_cell)
-        else:
-            self.db.add(cell)
-        self.db.commit()
-        return cell
+    # def create_cell(self, dto: CreateCellDto, user_id: int = 1):
+    #     cell = Cell(
+    #         step=dto.step,
+    #         order=dto.order,
+    #         goal=dto.goal,
+    #         sheet_id=dto.sheet_id,
+    #         color=dto.color
+    #     )
+    #
+    #     sheet = self.sheet_repo.find_by_id(dto.sheet_id)
+    #     if not sheet:
+    #         raise ValueError("sheet not found")
+    #
+    #     if sheet.owner_id != user_id:
+    #         raise UnauthorizedException()
+    #
+    #     if prev_cell := self.cell_repo.find_by(step=dto.step, order=dto.order, sheet_id=dto.sheet_id):
+    #         raise ValueError(f"Cell with step {dto.step} and order {dto.order} has been already existed")
+    #
+    #     if dto.step > 1:
+    #         parent_cells = self.cell_repo.find_by(step=dto.step - 1, sheet_id=dto.sheet_id,
+    #                                               order=dto.parent_order)
+    #         if not parent_cells:
+    #             raise ValueError("Parent cell not found")
+    #         parent_cell = parent_cells.pop()
+    #
+    #         parent_cell.children.append(cell)
+    #         self.db.add(parent_cell)
+    #     else:
+    #         self.db.add(cell)
+    #     self.db.commit()
+    #     return cell
 
     def update_cell(self, dto: UpdateCellDto, user_id: int, cell_id: int) -> Cell:
         cell = self.cell_repo.find_by_id(cell_id)
@@ -78,6 +78,9 @@ class CellService:
 
     def get_by_id(self, user_id: int, cell_id: int):
         cell = self.cell_repo.find_by_id(cell_id)
+        if not cell:
+            raise EntityNotFoundException(Cell, id=cell_id)
+
         if cell.sheet.owner_id != user_id:
             raise UnauthorizedException()
 
