@@ -2,45 +2,34 @@ from unittest.mock import patch, MagicMock, PropertyMock
 
 import pytest
 
+from models.cell import UpdateCellDto
 from schemas.cell import Cell
 from services import CellService
 from test_config import client, mock_db_session
 from views.cell import CellView
 
 
-def test_post_cell(mock_db_session):
-    data = {
-        'sheet_id': 1,
-        'goal': 'test',
-        'color': '#fff',
-        'step': 2,
-        'order': 3,
-        'parent_order': 1
-    }
+def test_update_cell(mock_db_session):
     mock_service = MagicMock(spec=CellService)
-    mock_service.create_cell.return_value = \
-        Cell(
-            id=4,
-            color=data['color'],
-            goal=data['goal'],
-            step=data['step'],
-            order=data['order'],
-            parent=Cell(
-                step=data['step'] - 1,
-                order=data['parent_order'],
-                id=3,
-                color='#fff',
-                goal='test goal',
-            )
-        )
+    cell_id = 1001
+
+    data = {
+        'goal': "test123",
+        'color': "FFFFFFFF",
+        'is_completed': False
+    }
+    mock_service.update_cell.return_value = Cell(
+        id=cell_id,
+        goal="test123",
+        color="FFFFFFFF",
+        is_completed=False
+    )
+
     with patch.object(CellView, 'cell_service', new_callable=PropertyMock, return_value=mock_service):
         # with patch.object(CellView, 'cell_service', new_callable=PropertyMock) as mock_cell_service:
-        res = client.post("/cell", json=data)
+        res = client.patch(f"/cell/{cell_id}", json=data)
         assert res.status_code == 200
         res_data = res.json()['data']
         assert res_data['color'] == data['color']
         assert res_data['goal'] == data['goal']
-        assert res_data['order'] == data['order']
-        assert res_data['step'] == data['step']
-        assert res_data['parent']['order'] == data['parent_order']
-        assert res_data['parent']['step'] == data['step'] - 1
+        assert res_data['id'] == cell_id

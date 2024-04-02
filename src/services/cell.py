@@ -65,16 +65,15 @@ class CellService:
     def update_cell(self, dto: UpdateCellDto, user_id: int, cell_id: int) -> Cell:
         cell = self.cell_repo.find_by_id(cell_id)
         if not cell:
-            raise ValueError("cell not found")
+            raise EntityNotFoundException(Cell, id=cell_id)
 
         if cell.sheet.owner_id != user_id:
             raise UnauthorizedException()
 
-        with self.transaction:
-            cell.color = dto.color if dto.color else cell.color
-            cell.goal = dto.goal if dto.goal else cell.goal
-            cell.is_completed = dto.is_completed if dto.is_completed is not None else cell.is_completed
-            self.cell_repo.create_or_update(cell)
+        cell.color = dto.color if dto.color else cell.color
+        cell.goal = dto.goal if dto.goal else cell.goal
+        cell.is_completed = dto.is_completed if dto.is_completed is not None else cell.is_completed
+        self.cell_repo.create_or_update(cell)
         return cell
 
     def get_by_id(self, user_id: int, cell_id: int):
