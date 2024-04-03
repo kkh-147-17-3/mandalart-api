@@ -32,7 +32,7 @@ class CellView:
     #     return GenericResponse(status=200, data=result, message="Success")
 
     @router.get("/sheet/{sheet_id}/cell", response_model=GenericResponse[list[GetCellDto]],
-                summary="가장 중앙의 만다르트 셀 정보를 포함한 만다르트 시트 정보를 불러옵니다.", tags=["sheet"])
+                summary="만다르트 시트의 셀 9개를 불러옵니다.", tags=["sheet"])
     def get_sheet_cells(self, sheet_id: int,
                         depth: Annotated[int, Query(ge=1, le=2)],
                         parent_order: Annotated[int, Query(ge=0, le=7)] = 0):
