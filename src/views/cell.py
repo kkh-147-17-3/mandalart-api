@@ -7,12 +7,13 @@ from fastapi_utils.inferring_router import InferringRouter
 from models.cell import GetCellDto, UpdateCellDto, GetCellWithChildrenDto
 from models.response import GenericResponse
 from services.cell import CellService
+from views.auth import AuthView
 
 router = InferringRouter()
 
 
 @cbv(router)
-class CellView:
+class CellView(AuthView):
     cell_service: CellService = Depends(CellService)
 
     @router.patch("/cell/{cell_id}", response_model=GenericResponse[GetCellDto],
@@ -20,7 +21,8 @@ class CellView:
                   description="셀의 수정하고자 하는 필드를 입력하여 셀 내용을 수정합니다. "
                               "입력된 필드의 내용만 수정되고, 입력되지 않은 필드는 수정하지 않습니다.")
     def update_cell(self, cell_id: int, dto: UpdateCellDto):
-        user_id = 1
+        user_id = self.user_id
+        # user_id = 1
         result = self.cell_service.update_cell(dto, user_id, cell_id)
         return GenericResponse(status=200, data=result, message="Success")
 
@@ -39,6 +41,6 @@ class CellView:
         """
         return 중 `step_1_cell.children`은 step_1_cell 필드 내용과 동일
         """
-        user_id = 1
+        user_id = self.user_id
         result = self.cell_service.get_by_sheet_id_and_depth_and_parent_order(user_id, sheet_id, depth, parent_order)
         return GenericResponse(status=200, data=result, message="Successfully fetched")
