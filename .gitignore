@@ -2,6 +2,3 @@ __pycache__
 .idea
 .env
 poetry.lock
-deploy*
-docker*
-Dockerfile
