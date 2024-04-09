@@ -11,25 +11,25 @@ T = TypeVar("T", bound=Base)
 
 
 class BaseRepository(Generic[T]):
-    __db: Session
+    _db: Session
     __model: Base
 
     def __init__(self, db: Annotated[Session, Depends(get_db)]) -> None:
-        self.__db = db
+        self._db = db
         self.__model = (get_args(self.__orig_bases__[0])[0])  # type: ignore
 
     def find_by_id(self, entity_id: int) -> T | None:
-        return self.__db.query(self.__model).filter(self.__model.id == entity_id).first()
+        return self._db.query(self.__model).filter(self.__model.id == entity_id).first()
 
     def create_or_update(self, entity: T) -> T:
-        self.__db.add(entity)
+        self._db.add(entity)
         return entity
 
     def delete(self, entity: T) -> None:
-        self.__db.delete(entity)
+        self._db.delete(entity)
 
     def delete_by_id(self, entity_id: int) -> None:
-        entity = self.__db.query().filter(self.__model.id == entity_id).first()
+        entity = self._db.query().filter(self.__model.id == entity_id).first()
         if entity is not None:
             self.delete(entity)
 
@@ -42,7 +42,7 @@ class BaseRepository(Generic[T]):
     def find_by(self, **kwargs) -> list[T]:
         self.validate_kwargs(**kwargs)
 
-        query = self.__db.query(self.__model)
+        query = self._db.query(self.__model)
         for k, v in kwargs.items():
             query = query.filter(getattr(self.__model, k) == v)
 
