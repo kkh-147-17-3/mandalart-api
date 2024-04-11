@@ -22,11 +22,15 @@ jobs:
           echo "DB_USER=$DB_USER" >> .env
           echo "DB_PASSWORD=$DB_PASSWORD" >> .env
           echo "DB_DATABASE=$DB_DATABASE" >> .env
+          echo "JWT_SECRET_KEY=$JWT_SECRET_KEY" >> .env
+          echo "JWT_ALGORITHM=$JWT_ALGORITHM" >> .env
         env:
           DB_URL: ${{secrets.DB_URL}}
           DB_USER: ${{secrets.DB_USER}}
           DB_PASSWORD: ${{secrets.DB_PASSWORD}}
           DB_DATABASE: ${{secrets.DB_DATABASE}}
+          JWT_SECRET_KEY: ${{secrets.JWT_SECRET_KEY}}
+          JWT_ALGORITHM: ${{secrets.JWT_ALGORITHM}}
 
       - uses: actions/cache@v3
         name: Define a cache for the virtual environment based on the dependencies lock file
