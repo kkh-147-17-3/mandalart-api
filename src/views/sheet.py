@@ -2,6 +2,7 @@ from fastapi import Depends
 from fastapi_utils.cbv import cbv
 from fastapi_utils.inferring_router import InferringRouter
 
+from models.response import CreateSheetResponse
 from models.sheet import CreateSheetDto
 from services.sheet import SheetService
 from views.auth import AuthView
@@ -15,9 +16,12 @@ class SheetView(AuthView):
 
     @router.post("/sheet", summary="새로운 만다르트 시트를 생성합니다.", tags=["sheet"],
                  description="새 시트를 생성합니다. 생성 시 시트의 81개 셀을 모두 생성합니다.")
-    def create_sheet(self, dto: CreateSheetDto):
+    def create_sheet(self, dto: CreateSheetDto) -> CreateSheetResponse:
         user_id = self.user_id
-        return self.sheet_service.create_sheet(dto, user_id)
+        created_sheet = self.sheet_service.create_sheet(dto, user_id)
+        return CreateSheetResponse(**{
+            'sheet_id': created_sheet.id
+        })
 
     @router.get("/sheet/{sheet_id}",
                 summary="가장 중앙의 만다르트 셀 정보를 포함한 만다르트 시트 정보를 불러옵니다.", tags=["sheet"])

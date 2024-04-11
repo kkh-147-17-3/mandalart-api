@@ -34,7 +34,7 @@ class SheetService:
     def get_by_user_id(self, user_id: int) -> List[Sheet]:
         return self.sheet_repo.find_by(owner_id=user_id)
 
-    def create_sheet(self, dto: CreateSheetDto, user_id: int):
+    def create_sheet(self, dto: CreateSheetDto, user_id: int) -> Sheet:
         with self.transaction:
             sheet = Sheet(**dto.dict(), owner_id=user_id)
             cell_1 = Cell(step=1, order=0, sheet=sheet)
