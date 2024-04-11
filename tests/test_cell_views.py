@@ -33,7 +33,7 @@ def test_update_cell(mock_db_session):
         # with patch.object(CellView, 'cell_service', new_callable=PropertyMock) as mock_cell_service:
         res = client.patch(f"/cell/{cell_id}", json=data)
         assert res.status_code == 200
-        res_data = res.json()['data']
+        res_data = res.json()
         assert res_data['color'] == data['color']
         assert res_data['goal'] == data['goal']
         assert res_data['id'] == cell_id
