@@ -5,12 +5,10 @@ from fastapi import Depends, HTTPException
 
 from enums import SocialProvider
 from models.token import BaseTokenDto
-from models.user import BaseUserDto
 import httpx
 from models import kakaologinapi
 from repositories import UserRepository
 from schemas import User
-from jose import jwt
 
 from services.token import create_access_token, create_refresh_token
 from transaction import Transaction
