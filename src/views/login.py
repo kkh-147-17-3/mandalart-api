@@ -1,16 +1,13 @@
 from typing import Annotated
 
-from fastapi import Request
 from fastapi_utils.cbv import cbv
 from fastapi_utils.inferring_router import InferringRouter
 from fastapi import Depends, Query
-from starlette.templating import Jinja2Templates
 
 from models.token import BaseTokenDto
 from services.login import LoginService
 
 router = InferringRouter()
-template = Jinja2Templates(directory='src/templates')
 
 
 @cbv(router)
@@ -26,7 +23,3 @@ class LoginView:
                 )
     def kakao_login(self, access_token: Annotated[str, Query(alias="accessToken")]) -> BaseTokenDto:
         return self.login_service.handle_login(access_token, "KAKAO")
-
-    # @router.get("/login-page")
-    def get_login_page(self, request: Request):
-        return template.TemplateResponse(request=request, name='login.html')
