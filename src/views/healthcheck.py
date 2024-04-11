@@ -1,13 +1,14 @@
 import os
+from typing import Dict
 
 from fastapi import APIRouter
-
-from models.response import GenericResponse
 
 router = APIRouter()
 
 
 @router.get("/")
-async def healthcheck() -> GenericResponse[str]:
+async def healthcheck() -> Dict[str, str | None]:
     flag = os.environ.get("DEPLOYMENT_FLAG")
-    return GenericResponse(status=200, data="OK", message=flag)
+    return {
+        "flag": flag
+    }
