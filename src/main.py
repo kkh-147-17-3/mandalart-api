@@ -1,4 +1,5 @@
 import os
+import pkgutil
 from contextlib import asynccontextmanager
 from datetime import datetime
 import traceback
@@ -11,12 +12,11 @@ from fastapi.responses import JSONResponse
 from fastapi.encoders import ENCODERS_BY_TYPE
 from starlette import status
 from starlette.middleware.cors import CORSMiddleware
-import uvicorn
 
 from database import Base, engine
-from errors.exceptions import EntityNotFoundException
-from models.response import GenericResponse, ErrorResponse
-from views import user_router, token_router, sheet_router, cell_router
+from errors.exceptions import EntityNotFoundException, UnauthorizedException
+from models.response import ErrorResponse
+from views import routers
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 load_dotenv(os.path.join(BASE_DIR, ".env"))
@@ -39,10 +39,8 @@ app = FastAPI(
     }
 )
 # app.include_router(oauth2_router)
-app.include_router(user_router)
-app.include_router(token_router)
-app.include_router(sheet_router)
-app.include_router(cell_router)
+for router in routers:
+    app.include_router(router)
 
 # app.add_middleware(OAuth2Middleware, config=oauth2_config, callback=on_auth)
 app.add_middleware(CORSMiddleware,
@@ -58,6 +56,15 @@ async def validation_exception_handler(_: Request, exc: ValidationException):
     return JSONResponse(
         status_code=res_code,
         content={"status": res_code, "data": exc.errors(), "message": "Request validation error"}
+    )
+
+
+@app.exception_handler(UnauthorizedException)
+async def unauthorized_exception_handler(_: Request, exc: UnauthorizedException):
+    res_code = status.HTTP_401_UNAUTHORIZED
+    return JSONResponse(
+        status_code=res_code,
+        content={"status": res_code, "data": None, "message": exc.msg}
     )
 
 

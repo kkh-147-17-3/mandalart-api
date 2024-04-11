@@ -10,7 +10,7 @@ class CellRepository(BaseRepository[Cell]):
     @override
     def find_by(self, **kwargs) -> list[Cell]:
         super().validate_kwargs(**kwargs)
-        result = self.__db.query(Cell).filter_by(**kwargs).options(
+        result = self._db.query(Cell).filter_by(**kwargs).options(
             selectinload(Cell.children).selectinload(Cell.children)
         ).all()
         return result

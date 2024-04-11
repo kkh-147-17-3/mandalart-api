@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 
 from dependencies import get_db
 from errors.exceptions import UnauthorizedException, EntityNotFoundException
-from models.cell import CreateCellDto, UpdateCellDto, GetCellDto
+from models.cell import UpdateCellDto, GetCellDto
 from repositories import SheetRepository
 from repositories.cell import CellRepository
 from schemas import Sheet

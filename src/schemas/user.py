@@ -9,6 +9,7 @@ from enums import SocialProvider
 class User(Base):
     __tablename__ = "users"
     id = Column(Integer, primary_key=True, autoincrement=True)
+    nickname = Column(String)
     social_id = Column(String)
     social_provider = Column(Enum(SocialProvider, native_enum=False))
     sheets = relationship("Sheet", back_populates="owner")
