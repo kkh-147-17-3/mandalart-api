@@ -4,6 +4,7 @@ from sqlalchemy.types import Enum
 
 from database import Base
 from enums import SocialProvider
+from schemas import Sheet
 
 
 class User(Base):
@@ -12,4 +13,4 @@ class User(Base):
     nickname = Column(String)
     social_id = Column(String)
     social_provider = Column(Enum(SocialProvider, native_enum=False))
-    sheets = relationship("Sheet", back_populates="owner")
+    sheets: Mapped[Sheet] = relationship("Sheet", back_populates="owner")
