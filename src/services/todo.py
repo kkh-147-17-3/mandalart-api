@@ -31,7 +31,7 @@ class TodoService:
 
         return GetTodoDto.from_orm(todo)
 
-    def update_todo(self, user_id: int, todo_id, update_dto: UpdateTodoDto) -> GetTodoDto:
+    def update_todo(self, user_id: int, todo_id: int, update_dto: UpdateTodoDto) -> GetTodoDto:
         with self.transaction:
             todo = self.todo_repository.find_by_id(todo_id)
             if not todo:
