@@ -31,3 +31,10 @@ class SheetView(AuthView):
         """
         user_id = self.user_id
         return self.sheet_service.get_by_sheet_id(sheet_id, user_id)
+
+    @router.get("/sheet", summary="시트 목록을 불러옵니다.", tags=["sheet"],
+                description="나의 시트 id 목록을 불러옵니다. 가장 최근에 생성된 시트부터 내림차순으로 가져옵니다.")
+    def get_my_sheet(self) -> list[int]:
+        user_id = self.user_id
+        sheets = self.sheet_service.get_by_user_id(user_id)
+        return [sheet.id for sheet in sheets]
