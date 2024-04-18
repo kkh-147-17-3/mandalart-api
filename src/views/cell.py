@@ -4,7 +4,7 @@ from fastapi import Depends, Query
 from fastapi_utils.cbv import cbv
 from fastapi_utils.inferring_router import InferringRouter
 
-from models.cell import GetCellDto, UpdateCellDto
+from models.cell import GetCellDto, UpdateCellDto, GetCellWithTodosDto
 from services.cell import CellService
 from views.auth import AuthView
 
@@ -15,7 +15,7 @@ router = InferringRouter()
 class CellView(AuthView):
     cell_service: CellService = Depends(CellService)
 
-    @router.patch("/cell/{cell_id}", response_model=GetCellDto,
+    @router.patch("/cell/{cell_id}", response_model=GetCellWithTodosDto,
                   summary="만다르트 셀 한 개의 내용을 수정합니다.", tags=["cell"],
                   description="셀의 수정하고자 하는 필드를 입력하여 셀 내용을 수정합니다. "
                               "입력된 필드의 내용만 수정되고, 입력되지 않은 필드는 수정하지 않습니다.")
@@ -41,3 +41,12 @@ class CellView(AuthView):
         """
         user_id = self.user_id
         return self.cell_service.get_by_sheet_id_and_depth_and_parent_order(user_id, sheet_id, depth, parent_order)
+
+    @router.get("/cell/{cell_id}")
+    def get_cell_info(self, cell_id: int) -> GetCellWithTodosDto:
+        return self.cell_service.get_by_id(self.user_id, cell_id)
+
+    @router.delete("/cell/{cell_id}", summary="cell 의 내용을 전부 삭제합니다(초기화).", tags=["cell"],
+                   description="셀의 내용을 전부 삭제합니다. 하위 셀의 관계와 정보는 그대로 유지됩니다.")
+    def delete_cell(self, cell_id: int) -> GetCellWithTodosDto:
+        return self.cell_service.delete_cell(self.user_id, cell_id)

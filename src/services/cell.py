@@ -5,11 +5,12 @@ from sqlalchemy.orm import Session
 
 from dependencies import get_db
 from errors.exceptions import UnauthorizedException, EntityNotFoundException
-from models.cell import UpdateCellDto, GetCellDto
+from models.cell import UpdateCellDto, GetCellDto, GetCellWithTodosDto
 from repositories import SheetRepository
 from repositories.cell import CellRepository
 from schemas import Sheet
 from schemas.cell import Cell
+from schemas.todo import Todo
 from transaction import Transaction
 
 
@@ -61,8 +62,7 @@ class CellService:
     #         self.db.add(cell)
     #     self.db.commit()
     #     return cell
-
-    def update_cell(self, dto: UpdateCellDto, user_id: int, cell_id: int) -> Cell:
+    def delete_cell(self, user_id: int, cell_id: int) -> GetCellWithTodosDto:
         cell = self.cell_repo.find_by_id(cell_id)
         if not cell:
             raise EntityNotFoundException(Cell, id=cell_id)
@@ -70,13 +70,30 @@ class CellService:
         if cell.sheet.owner_id != user_id:
             raise UnauthorizedException()
 
-        cell.color = dto.color if dto.color else cell.color
-        cell.goal = dto.goal if dto.goal else cell.goal
-        cell.is_completed = dto.is_completed if dto.is_completed is not None else cell.is_completed
-        self.cell_repo.create_or_update(cell)
-        return cell
+        with self.transaction:
+            cell.color = None
+            cell.goal = None
+            cell.todos = []
+            cell.is_completed = False
+            self.cell_repo.create_or_update(cell)
+        return GetCellWithTodosDto.from_orm(cell)
 
-    def get_by_id(self, user_id: int, cell_id: int):
+    def update_cell(self, dto: UpdateCellDto, user_id: int, cell_id: int) -> GetCellWithTodosDto:
+        cell = self.cell_repo.find_by_id(cell_id)
+        if not cell:
+            raise EntityNotFoundException(Cell, id=cell_id)
+
+        if cell.sheet.owner_id != user_id:
+            raise UnauthorizedException()
+        with self.transaction:
+            cell.color = dto.color if dto.color else cell.color
+            cell.goal = dto.goal if dto.goal else cell.goal
+            cell.is_completed = dto.is_completed if dto.is_completed is not None else cell.is_completed
+            cell.todos = [Todo(owner_id=user_id, content=todo) for todo in dto.todos]
+            self.cell_repo.create_or_update(cell)
+        return GetCellWithTodosDto.from_orm(cell)
+
+    def get_by_id(self, user_id: int, cell_id: int) -> GetCellWithTodosDto:
         cell = self.cell_repo.find_by_id(cell_id)
         if not cell:
             raise EntityNotFoundException(Cell, id=cell_id)
@@ -84,7 +101,7 @@ class CellService:
         if cell.sheet.owner_id != user_id:
             raise UnauthorizedException()
 
-        return cell
+        return GetCellWithTodosDto.from_orm(cell)
 
     def get_by_sheet_id_and_depth_and_parent_order(self,
                                                    user_id: int,
