@@ -13,5 +13,4 @@ routers = (
     user_router,
     token_router,
     login_router,
-    todo_router
 )
