@@ -1,7 +1,9 @@
 import re
-from typing import List, Self, Optional
+from typing import List
 
 from pydantic import BaseModel, Field, validator
+
+from models.todo import GetTodoDto
 
 
 def validate_color(cls, color: str) -> str:
@@ -45,6 +47,10 @@ class GetCellDto(BaseCellDto):
         orm_mode = True
 
 
+class GetCellWithTodosDto(GetCellDto):
+    todos: List[GetTodoDto]
+
+
 class GetCellWithChildrenDto(BaseCellDto):
     id: int
     color: str | None
@@ -59,6 +65,7 @@ class GetCellWithChildrenDto(BaseCellDto):
 class UpdateCellDto(BaseModel):
     goal: str | None = Field(None, description='목표 내용')
     color: str | None = Field(None, description='#을 제외한 셀 색상 hex code 8자리(ex: FFFFFFFF)')
+    todos: list[str]
     is_completed: bool | None = Field(None, description='목표 완료 여부')
     _validate_color = validator('color', allow_reuse=True)(validate_color)
 
@@ -67,6 +74,7 @@ class UpdateCellDto(BaseModel):
             "examples": [{
                 "goal": "만다르트 테스트 목표",
                 "color": "FFAABB00",
-                "is_completed": False
+                "is_completed": False,
+                "todos": ["해야할 일 1", "해야할 일 2"]
             }]
         }
