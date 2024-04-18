@@ -19,7 +19,7 @@ class UnauthorizedException(CustomException):
 
 
 class EntityNotFoundException(CustomException):
-    def __init__(self, entity: Base | None, msg: str | None = None, **kwargs):
+    def __init__(self, entity: Base | None = None, msg: str | None = None, **kwargs):
         super().__init__(msg)
         self.entity = entity
         self.lookup_fields = kwargs

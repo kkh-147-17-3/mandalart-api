@@ -5,13 +5,17 @@ from sqlalchemy import Column, ForeignKey, Integer, DateTime, CheckConstraint, S
 from sqlalchemy.orm import relationship, Mapped
 
 from database import Base
+from schemas.todo import Todo
 
 
 class Cell(Base):
     __tablename__ = "cells"
     id = Column(Integer, primary_key=True, autoincrement=True)
+    owner_id = Column(Integer, ForeignKey("users.id"))
+    owner = relationship("User")
     sheet_id = Column(Integer, ForeignKey("sheets.id"))
     sheet = relationship("Sheet")
+    todos: Mapped[list[Todo]] = relationship("Todo", back_populates="cell")
     goal = Column(String, nullable=True)
     color = Column(String, nullable=True)
     step = Column(Integer, default=1, nullable=False)
@@ -19,7 +23,8 @@ class Cell(Base):
     parent_id = Column(Integer, ForeignKey("cells.id"))
     parent = relationship("Cell", back_populates="children", remote_side=[id])
     is_completed = Column(Boolean, default=False, nullable=False)
-    children: list["Cell"] = relationship("Cell", back_populates="parent", order_by="Cell.order.asc()", lazy="selectin")
+    children: Mapped[list["Cell"]] = relationship("Cell", back_populates="parent", order_by="Cell.order.asc()",
+                                                  lazy="selectin")
     created_at: Mapped[datetime.datetime] = Column(DateTime, default=datetime.datetime.now)
     modified_at: Mapped[datetime.datetime] = Column(DateTime, onupdate=datetime.datetime.now)
 
