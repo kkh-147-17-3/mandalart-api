@@ -23,3 +23,7 @@ class LoginView:
                 )
     def kakao_login(self, access_token: Annotated[str, Query(alias="accessToken")]) -> BaseTokenDto:
         return self.login_service.handle_login(access_token, "KAKAO")
+
+    @router.get("/login/apple")
+    def apple_login(self, code: str, id_token: str):
+        return self.login_service.handle_apple_login(code, id_token)

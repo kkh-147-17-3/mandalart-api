@@ -74,3 +74,22 @@ def auth_access_wrapper(auth: HTTPAuthorizationCredentials = Depends(security)):
 
 def auth_refresh_wrapper(auth: HTTPAuthorizationCredentials = Depends(security)):
     return decode_refresh_token(auth.credentials)
+
+APPLE_CLIENT_SECRET="-----BEGIN PRIVATE KEY-----\nMIGTAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBHkwdwIBAQQgxo8hO7L5VNWIdUL/WSKk3xBjHCqd5f0NscPw7ZYxzkagCgYIKoZIzj0DAQehRANCAARmoPoS7s0xDt7rDjjllmeIc4poIBujC+DFp5tIlw3ep3MdOLM3p3ljYeUHo3s4tpWAO1ke69NKo7KvM3T6P2iC\n-----END PRIVATE KEY-----"
+
+
+def create_apple_client_secret():
+    alg = "ES256"
+    issued_at = datetime.now()
+    expire = datetime.now() + timedelta(days=30)
+
+    return jwt.encode({
+        "sub": "com.baker.eggtart.in",
+        "exp": int(expire.timestamp()),
+        "iat": int(issued_at.timestamp()),
+        "iss": "SUMATJC294",
+        "aud": "https://appleid.apple.com"
+    }, APPLE_CLIENT_SECRET, algorithm=alg, headers={
+        "alg": alg,
+        "kid": "6QR4HWWN33"
+    })

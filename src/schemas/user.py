@@ -14,3 +14,4 @@ class User(Base):
     social_id = Column(String)
     social_provider = Column(Enum(SocialProvider, native_enum=False))
     sheets: Mapped[Sheet] = relationship("Sheet", back_populates="owner")
+    apple_refresh_token = Column(String, nullable=True)
