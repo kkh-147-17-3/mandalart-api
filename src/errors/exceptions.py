@@ -29,5 +29,11 @@ class EntityNotFoundException(CustomException):
                                           f"{f": lookup fields: {self.lookup_fields}" if self.lookup_fields else ""}")
 
 
+class InvalidJwtException(CustomException):
+    def __init__(self, msg: str | None = None, code: int = 40100):
+        super().__init__(msg)
+        self.code = code
+
+
 class MissingEnvVarException(CustomException):
     pass
