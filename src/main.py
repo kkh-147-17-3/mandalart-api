@@ -7,14 +7,14 @@ from typing import Any
 
 from dotenv import load_dotenv
 from fastapi import FastAPI, Request
-from fastapi.exceptions import ValidationException, RequestValidationError, ResponseValidationError
+from fastapi.exceptions import ValidationException, RequestValidationError, ResponseValidationError, HTTPException
 from fastapi.responses import JSONResponse
 from fastapi.encoders import ENCODERS_BY_TYPE
 from starlette import status
 from starlette.middleware.cors import CORSMiddleware
 
 from database import Base, engine
-from errors.exceptions import EntityNotFoundException, UnauthorizedException
+from errors.exceptions import EntityNotFoundException, UnauthorizedException, InvalidJwtException
 from models.response import ErrorResponse
 from views import routers
 
@@ -64,7 +64,7 @@ async def unauthorized_exception_handler(_: Request, exc: UnauthorizedException)
     res_code = status.HTTP_401_UNAUTHORIZED
     return JSONResponse(
         status_code=res_code,
-        content={"status": res_code, "data": None, "message": exc.msg}
+        content={"status": res_code, "message": exc.msg}
     )
 
 
@@ -73,7 +73,16 @@ async def entity_not_found_exception_handler(_: Request, exc: EntityNotFoundExce
     res_code = status.HTTP_404_NOT_FOUND
     return JSONResponse(
         status_code=res_code,
-        content={"status": res_code, "data": None, "message": str(exc)}
+        content={"status": res_code, "message": str(exc)}
+    )
+
+
+@app.exception_handler(InvalidJwtException)
+async def invalid_jwt_exception_handler(_: Request, exc: InvalidJwtException):
+    res_code = status.HTTP_401_UNAUTHORIZED
+    return JSONResponse(
+        status_code=res_code,
+        content={"status": exc.code, "message": str(exc)}
     )
 
 
