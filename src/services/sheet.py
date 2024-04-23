@@ -32,7 +32,7 @@ class SheetService:
         self.transaction = transaction
 
     def get_by_user_id(self, user_id: int) -> List[Sheet]:
-        return self.sheet_repo.find_by(owner_id=user_id)
+        return sorted(self.sheet_repo.find_by(owner_id=user_id), key=lambda sheet: sheet.id, reverse=True)
 
     def create_sheet(self, dto: CreateSheetDto, user_id: int) -> Sheet:
         with self.transaction:

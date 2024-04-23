@@ -16,7 +16,8 @@ def test_update_cell(mock_db_session):
     data = {
         'goal': "test123",
         'color': "FFFFFFFF",
-        'is_completed': False
+        'is_completed': False,
+        'todos': ["test1", "test2"]
     }
     mock_service.update_cell.return_value = Cell(
         id=cell_id,
