@@ -1,3 +1,4 @@
+import datetime
 from http import HTTPStatus
 from typing import Annotated
 
@@ -14,9 +15,10 @@ from services.token import create_access_token, create_refresh_token
 from transaction import Transaction
 
 
-def get_token(user_id: int) -> BaseTokenDto:
-    access_token = create_access_token(user_id)
-    refresh_token = create_refresh_token(user_id)
+def get_token(user_id: int, short: bool = False) -> BaseTokenDto:
+    timedelta = datetime.timedelta(minutes=1) if short else None
+    access_token = create_access_token(user_id, timedelta)
+    refresh_token = create_refresh_token(user_id, timedelta)
     return BaseTokenDto(**{
         "access_token": access_token,
         "refresh_token": refresh_token
@@ -29,10 +31,10 @@ class LoginService:
         self.user_repository = user_repo
         self.transaction = transaction
 
-    def handle_login(self, access_token: str, login_method: str) -> BaseTokenDto:
+    def handle_login(self, access_token: str, login_method: str, short: bool = False) -> BaseTokenDto:
         if login_method == "KAKAO":
             user_id = self.request_kakao_user_info(access_token)
-            return get_token(user_id)
+            return get_token(user_id, short)
         else:
             raise Exception("Invalid login method")
 
