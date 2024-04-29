@@ -80,12 +80,12 @@ def apilogging(func: Callable):
     @wraps(func)
     def wrapper(*args, **kwargs):
         response: Response = func(*args, **kwargs)
-        req_log = dict()
+        req = dict()
         for key, value in kwargs.items():
             if key == 'self':
                 continue
-            req_log[key] = value
-        req_log = json.dumps(req_log, default=pydantic_encoder, ensure_ascii=False)
+            req[key] = value
+        req_log = json.dumps(req, default=pydantic_encoder, ensure_ascii=False)
         req_log = json.loads(req_log)
         res_log = json.dumps(response, default=pydantic_encoder, ensure_ascii=False)
         res_log = json.loads(res_log)
