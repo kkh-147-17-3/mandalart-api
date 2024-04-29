@@ -25,8 +25,8 @@
             "formatter": "json",
             "level": "DEBUG",
             "filename": "/var/log/fastapi/my_app.jsonl",
-            "maxBytes": 10000,
-            "backupCount": 3,
+            "maxBytes": 200000,
+            "backupCount": 5,
             "encoding": "utf-8"
         },
         "stderr": {
