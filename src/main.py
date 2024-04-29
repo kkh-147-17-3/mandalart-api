@@ -31,10 +31,10 @@ Base.metadata.create_all(bind=engine)
 @asynccontextmanager
 async def lifespan(_: FastAPI):
     ENCODERS_BY_TYPE[datetime] = lambda date_obj: date_obj.strftime("%Y-%m-%d %H:%M:%S")
-    queue_handler: QueueHandler = logging.getHandlerByName('queue_handler')
+    queue_handler = logging.getHandlerByName('queue_handler')
     if queue_handler is not None:
-        queue_handler.listener.start()
-        atexit.register(queue_handler.listener.stop)
+        queue_handler.listener.start()  # type: ignore
+        atexit.register(queue_handler.listener.stop)  # type: ignore
     scheduler.start()
     yield
 
@@ -107,21 +107,21 @@ async def general_exception_handler(_: Request, exc: Exception):
 logger = logging.getLogger("main")
 
 # @app.middleware('http')
-async def log_api_request_and_response(request: Request, call_next: Callable[[Any], Awaitable[StreamingResponse]]):
-    response = await call_next(request)
-    response_body = b""
-    async for chunk in response.body_iterator:
-        response_body += chunk
-    logger.info({
-        "method": request.method,
-        "url": request.url,
-        "headers": request.headers,
-        "query_params": request.query_params,
-        "path_params": request.path_params,
-        "request_body": await request.body(),
-        "response_status": response.status_code,
-        "response_headers": response.headers,
-        "response_body": response_body
-    })
-    return Response(content=response_body, status_code=response.status_code,
-                    headers=dict(response.headers), media_type=response.media_type)
+# async def log_api_request_and_response(request: Request, call_next: Callable[[Any], Awaitable[StreamingResponse]]):
+#     response = await call_next(request)
+#     response_body = b""
+#     async for chunk in response.body_iterator:
+#         response_body += chunk
+#     logger.info({
+#         "method": request.method,
+#         "url": request.url,
+#         "headers": request.headers,
+#         "query_params": request.query_params,
+#         "path_params": request.path_params,
+#         "request_body": await request.body(),
+#         "response_status": response.status_code,
+#         "response_headers": response.headers,
+#         "response_body": response_body
+#     })
+#     return Response(content=response_body, status_code=response.status_code,
+#                     headers=dict(response.headers), media_type=response.media_type)
