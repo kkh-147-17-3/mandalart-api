@@ -64,10 +64,9 @@ def test_update_todo(mock_service):
     todo_id = 2
     cell_id = 1
     content = "update test content"
-    update_dto = UpdateTodoDto(**{
-        "id": todo_id,
-        "content": content
-    })
+    update_dto = UpdateTodoDto(
+        content=content
+    )
     mock_todo_repo = MagicMock(spec=TodoRepository)
     mock_todo_repo.find_by_id.return_value = Todo(
         id=todo_id,
