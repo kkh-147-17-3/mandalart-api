@@ -1,7 +1,12 @@
 import json
-from logging import Formatter, LogRecord, INFO, Filter, getLogger
-from typing import override
+import logging
+from functools import wraps
+from logging import Formatter, LogRecord, INFO, Filter
+from typing import override, Callable
 import datetime as dt
+
+from pydantic.json import pydantic_encoder
+from starlette.responses import Response
 
 LOG_RECORD_BUILTIN_ATTRS = {
     "args",
@@ -28,6 +33,7 @@ LOG_RECORD_BUILTIN_ATTRS = {
     "threadName",
     "taskName",
 }
+
 
 class JsonFormatter(Formatter):
     def __init__(self, *, fmt_keys: dict[str, str] | None = None):
@@ -67,9 +73,32 @@ class JsonFormatter(Formatter):
         return message
 
 
+logger = logging.getLogger("main")
+
+
+def apilogging(func: Callable):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        response: Response = func(*args, **kwargs)
+        req_log = dict()
+        for key, value in kwargs.items():
+            if key == 'self':
+                continue
+            req_log[key] = value
+        req_log = json.dumps(req_log, default=pydantic_encoder, ensure_ascii=False)
+        req_log = json.loads(req_log)
+        res_log = json.dumps(response, default=pydantic_encoder, ensure_ascii=False)
+        res_log = json.loads(res_log)
+        logger.info({
+            "request_params": req_log,
+            "response": res_log
+        })
+        return response
+
+    return wrapper
+
+
 class NonErrorFilter(Filter):
     @override
     def filter(self, record: LogRecord) -> bool | LogRecord:
         return record.levelno <= INFO
-    
-logger = getLogger("main")
