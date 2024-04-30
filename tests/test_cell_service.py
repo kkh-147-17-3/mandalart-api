@@ -3,7 +3,7 @@ from unittest.mock import patch, MagicMock
 import pytest
 
 from models.cell import CreateCellDto, UpdateCellDto
-from repositories import CellRepository
+from repositories import CellRepository, SheetRepository
 from schemas import Cell, Sheet
 from schemas.todo import Todo
 from services import CellService
@@ -15,7 +15,7 @@ from transaction import Transaction
 @pytest.fixture
 def mock_service(mock_db_session):
     cell_repo = CellRepository(mock_db_session)
-    sheet_repo = CellRepository(mock_db_session)
+    sheet_repo = SheetRepository(mock_db_session)
     transaction = Transaction(mock_db_session)
     return CellService(mock_db_session, cell_repo, sheet_repo, transaction)
 
@@ -25,7 +25,7 @@ def mock_create_or_update(cell: Cell):
         cell.id = 1
 
     if cell.todos:
-        todos = [Todo(owner_id=todo.owner_id, content=todo.content, cell_id=cell.id, id=idx+1) for idx, todo in
+        todos = [Todo(owner_id=todo.owner_id, content=todo.content, cell_id=cell.id, id=idx + 1) for idx, todo in
                  enumerate(cell.todos)]
         cell.todos = todos
 
@@ -43,12 +43,12 @@ def test_update_cell_raise_error_when_cell(mock_service):
         cell_id = 1001
         user_id = 1
         mock_cell_repo.find_by_id.return_value = None
-        data = UpdateCellDto(**{
-            'goal': 'test',
-            'color': 'ffffffff',
-            'is_completed': False,
-            "todos": ["test1", "test2"]
-        })
+        data = UpdateCellDto(
+            goal='test',
+            color='ffffffff',
+            is_completed=False,
+            todos=["test1", "test2"]
+        )
         try:
             mock_service.update_cell(data, user_id, cell_id)
             assert False
@@ -71,14 +71,14 @@ def test_update_cell_raise_when_owner_is_different(mock_service):
             sheet=Sheet(id=1, owner_id=2),
             color='FFFFFFFF',
             is_completed=False,
-            todos=[Todo(id=1, cell_id=cell_id, content="test1")]
+            todos=[Todo(id=1, cell_id=cell_id, content="test1", owner_id=user_id)]
         )
-        data = UpdateCellDto(**{
-            'goal': 'test',
-            'color': 'ffffffff',
-            'is_completed': False,
-            "todos": ["test1", "test2"]
-        })
+        data = UpdateCellDto(
+            goal='test',
+            color='ffffffff',
+            is_completed=False,
+            todos=["test1", "test2"]
+        )
         try:
             mock_service.update_cell(data, user_id, cell_id)
             assert False
@@ -88,19 +88,19 @@ def test_update_cell_raise_when_owner_is_different(mock_service):
 
 def test_update_cell_success(mock_service):
     mock_cell_repo = MagicMock(spec=CellRepository)
-    mock_sheet_repo = MagicMock(spec=CellRepository)
+    mock_sheet_repo = MagicMock(spec=SheetRepository)
     todos = ["test1", "test2"]
     with (
         patch.object(mock_service, 'cell_repo', mock_cell_repo),
     ):
         cell_id = 1001
         user_id = 1
-        data = UpdateCellDto(**{
-            'goal': 'test123',
-            'color': 'FFAABBAA',
-            'is_completed': True,
-            "todos": todos
-        })
+        data = UpdateCellDto(
+            goal='test123',
+            color='FFAABBAA',
+            is_completed=True,
+            todos=todos
+        )
         original_cell = Cell(
             id=cell_id,
             sheet=Sheet(id=1, owner_id=user_id),
@@ -108,16 +108,16 @@ def test_update_cell_success(mock_service):
             is_completed=False
         )
         mock_cell_repo.find_by_id.return_value = original_cell
-        # updated_cell = Cell(
-        #     id=cell_id,
-        #     sheet=Sheet(id=1, owner_id=user_id),
-        #     color=data.color,
-        #     is_completed=data.is_completed,
-        #     goal=data.goal,
-        #     todos=[
-        #
-        #     ]
-        # )
+    # updated_cell = Cell(
+    #     id=cell_id,
+    #     sheet=Sheet(id=1, owner_id=user_id),
+    #     color=data.color,
+    #     is_completed=data.is_completed,
+    #     goal=data.goal,
+    #     todos=[
+    #
+    #     ]
+    # )
         mock_cell_repo.create_or_update.side_effect = mock_create_or_update
 
         try:

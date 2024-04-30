@@ -124,6 +124,6 @@ class CellService:
             raise ValueError(
                 f"Invalid arguments sheet_id, depth, and parent_order: {sheet_id}, {depth}, {parent_order}")
         parent_cell = parent_cell.pop()
-        result = [GetCellDto(**child.__dict__) for child in parent_cell.children]
-        result.insert(4, parent_cell)
+        result = [GetCellDto.from_orm(child) for child in parent_cell.children]
+        result.insert(4, GetCellDto.from_orm(parent_cell))
         return result

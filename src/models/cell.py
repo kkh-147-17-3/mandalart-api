@@ -7,7 +7,7 @@ from models.todo import GetTodoDto
 
 
 def validate_color(cls, color: str) -> str:
-    p = re.compile('([0-9a-fA-F]{2}){4}')
+    p = re.compile('([0-9a-fA-F]{2}){3}')
 
     if not p.match(color):
         raise ValueError(f'Invalid color {color}')
@@ -64,7 +64,7 @@ class GetCellWithChildrenDto(BaseCellDto):
 
 class UpdateCellDto(BaseModel):
     goal: str | None = Field(None, description='목표 내용')
-    color: str | None = Field(None, description='#을 제외한 셀 색상 hex code 8자리(ex: FFFFFFFF)')
+    color: str | None = Field(None, description='#을 제외한 셀 색상 hex code 6자리(ex: FFFFFF)')
     todos: list[str]
     is_completed: bool | None = Field(None, description='목표 완료 여부')
     _validate_color = validator('color', allow_reuse=True)(validate_color)
@@ -73,7 +73,7 @@ class UpdateCellDto(BaseModel):
         schema_extra = {
             "examples": [{
                 "goal": "만다르트 테스트 목표",
-                "color": "FFAABB00",
+                "color": "FFAABB",
                 "is_completed": False,
                 "todos": ["해야할 일 1", "해야할 일 2"]
             }]
