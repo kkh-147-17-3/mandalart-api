@@ -127,3 +127,14 @@ class CellService:
         result = [GetCellDto.from_orm(child) for child in parent_cell.children]
         result.insert(4, GetCellDto.from_orm(parent_cell))
         return result
+
+    def get_children_cells_by_id(self, user_id, cell_id) -> list[GetCellDto]:
+        cell = self.cell_repo.find_by_id(cell_id)
+        if not cell:
+            raise EntityNotFoundException(Cell, id=cell_id)
+
+        if cell.sheet.owner_id != user_id:
+            raise UnauthorizedException()
+
+        return [GetCellDto.from_orm(child) for child in cell.children]
+

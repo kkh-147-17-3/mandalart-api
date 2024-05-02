@@ -3,7 +3,7 @@ from fastapi_utils.cbv import cbv
 from fastapi_utils.inferring_router import InferringRouter
 
 from models.response import CreateSheetResponse
-from models.sheet import CreateSheetDto
+from models.sheet import CreateSheetDto, GetSheetInfoDto
 from services.sheet import SheetService
 from views.auth import AuthView
 
@@ -25,7 +25,7 @@ class SheetView(AuthView):
 
     @router.get("/sheet/{sheet_id}",
                 summary="가장 중앙의 만다르트 셀 정보를 포함한 만다르트 시트 정보를 불러옵니다.", tags=["sheet"])
-    def get_sheet_info(self, sheet_id: int):
+    def get_sheet_info(self, sheet_id: int) -> GetSheetInfoDto:
         """
         return 중 `step_1_cell.children`은 step_1_cell 필드 내용과 동일
         """
