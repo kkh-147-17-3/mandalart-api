@@ -46,7 +46,7 @@ class CellView(AuthView):
     def get_cell_info(self, cell_id: int) -> GetCellWithTodosDto:
         return self.cell_service.get_by_id(self.user_id, cell_id)
 
-    @router.get("/cell/{cell_id}")
+    @router.get("/cell/{cell_id}/children")
     def get_cell_info(self, cell_id: int) -> list[GetCellDto]:
         return self.cell_service.get_children_cells_by_id(self.user_id, cell_id)
 
