@@ -54,21 +54,25 @@ def decode_access_token(token):
             raise InvalidJwtException(code=40101, msg='Invalid token')
         return payload['user_id']
     except jwt.ExpiredSignatureError:
-        raise InvalidJwtException(code=40102, msg='Signature has expired')
-    except jwt.JWTClaimsError as _:
+        raise InvalidJwtException(code=40102, msg='Signature has been expired')
+    except jwt.JWTClaimsError:
         raise InvalidJwtException(code=40103, msg='Invalid token')
+    except Exception as e:
+        raise InvalidJwtException(code=40104, msg=str(e))
 
 
 def decode_refresh_token(token) -> int:
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=ALGORITHM)
         if payload['sub'] != "refresh_token":
-            raise HTTPException(status_code=401, detail='Invalid token')
+            raise InvalidJwtException(code=40101, msg='Invalid token')
         return payload['user_id']
     except jwt.ExpiredSignatureError:
-        raise HTTPException(status_code=401, detail='Signature has been expired')
+        raise InvalidJwtException(code=40102, msg='Signature has been expired')
     except jwt.JWTClaimsError:
-        raise HTTPException(status_code=401, detail='Invalid token')
+        raise InvalidJwtException(code=40103, msg='Invalid token')
+    except Exception as e:
+        raise InvalidJwtException(code=40104, msg=str(e))
 
 
 def auth_access_wrapper(auth: HTTPAuthorizationCredentials = Depends(security)):

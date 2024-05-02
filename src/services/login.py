@@ -16,9 +16,11 @@ from transaction import Transaction
 
 
 def get_token(user_id: int, short: bool = False) -> BaseTokenDto:
-    timedelta = datetime.timedelta(minutes=1) if short else None
-    access_token = create_access_token(user_id, timedelta)
-    refresh_token = create_refresh_token(user_id, timedelta)
+    access_token_timedelta = datetime.timedelta(minutes=1) if short else None
+    refresh_token_timedelta = datetime.timedelta(minutes=1) if short else None
+
+    access_token = create_access_token(user_id, access_token_timedelta)
+    refresh_token = create_refresh_token(user_id, refresh_token_timedelta)
     return BaseTokenDto(**{
         "access_token": access_token,
         "refresh_token": refresh_token
