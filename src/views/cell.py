@@ -31,22 +31,21 @@ class CellView(AuthView):
     #     result = self.cell_service.get_by_id(user_id, cell_id)
     #     return GenericResponse(status=200, data=result, message="Success")
 
-    @router.get("/sheet/{sheet_id}/cell", response_model=list[GetCellDto],
-                summary="만다르트 시트의 셀 9개를 불러옵니다.", tags=["sheet"])
-    def get_sheet_cells(self, sheet_id: int,
-                        depth: Annotated[int, Query(ge=1, le=2)],
-                        parent_order: Annotated[int, Query(ge=0, le=7)] = 0):
+    @router.get("/sheet/{sheet_id}/cell/main", response_model=list[GetCellDto],
+                summary="만다르트 시트의 정 중앙에 있는 셀 9개를 불러옵니다.", tags=["sheet"])
+    def get_sheet_cells(self, sheet_id: int):
         """
         return 중 `step_1_cell.children`은 step_1_cell 필드 내용과 동일
         """
         user_id = self.user_id
-        return self.cell_service.get_by_sheet_id_and_depth_and_parent_order(user_id, sheet_id, depth, parent_order)
+        return self.cell_service.get_by_sheet_id_and_depth_and_parent_order(user_id, sheet_id, 1, 0)
 
-    @router.get("/cell/{cell_id}")
+    @router.get("/cell/{cell_id}", summary="개별 셀 정보를 불러옵니다.", description="개별 셀의 정보를 불러옵니다. 하위 셀 정보는 포함하지 않습니다.",
+                tags=['cell'])
     def get_cell_info(self, cell_id: int) -> GetCellWithTodosDto:
         return self.cell_service.get_by_id(self.user_id, cell_id)
 
-    @router.get("/cell/{cell_id}/children")
+    @router.get("/cell/{cell_id}/children", summary="특정 셀의 하위 셀 정보를 불러옵니다.", tags=['cell'])
     def get_cell_info(self, cell_id: int) -> list[GetCellDto]:
         return self.cell_service.get_children_cells_by_id(self.user_id, cell_id)
 
@@ -54,4 +53,3 @@ class CellView(AuthView):
                    description="셀의 내용을 전부 삭제합니다. 하위 셀의 관계와 정보는 그대로 유지됩니다.")
     def delete_cell(self, cell_id: int) -> GetCellWithTodosDto:
         return self.cell_service.delete_cell(self.user_id, cell_id)
-
