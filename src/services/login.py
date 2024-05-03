@@ -101,7 +101,7 @@ class LoginService:
         user_info = self.user_repository.find_by_id(user_id)
         if user_info is None:
             raise EntityNotFoundException(User, user_id=user_id)
-        if user_info.social_provider != SocialProvider.KAKAO:
+        if user_info.social_provider != SocialProvider.APPLE:
             raise CustomException("Invalid social provider")
 
         url = "https://appleid.apple.com/auth/revoke"
@@ -120,7 +120,9 @@ class LoginService:
 
         if res.status_code != 200:
             raise Exception("Sign-out Failed")
-        with self.transaction:
-            user_info.is_deleted = True
-            self.user_repository.create_or_update(user_info)
 
+        user_info.is_deleted = True
+        user_info.social_id = f"apple-deleted-{int(datetime.datetime.now().timestamp())}"
+
+        with self.transaction:
+            self.user_repository.create_or_update(user_info)
