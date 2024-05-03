@@ -23,8 +23,7 @@ class SheetView(AuthView):
             'sheet_id': created_sheet.id
         })
 
-    @router.get("/sheet/{sheet_id}",
-                summary="가장 중앙의 만다르트 셀 정보를 포함한 만다르트 시트 정보를 불러옵니다.", tags=["sheet"])
+    # @router.get("/sheet/{sheet_id}", summary="가장 중앙의 만다르트 셀 정보를 포함한 만다르트 시트 정보를 불러옵니다.", tags=["sheet"])
     def get_sheet_info(self, sheet_id: int) -> GetSheetInfoDto | None:
         """
         return 중 `step_1_cell.children`은 step_1_cell 필드 내용과 동일
