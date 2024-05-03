@@ -13,6 +13,14 @@ load_dotenv('src/../.env')
 
 SECRET_KEY = os.getenv("JWT_SECRET_KEY")
 ALGORITHM = os.getenv("JWT_ALGORITHM")
+APPLE_PRIVATE_KEY = os.getenv('APPLE_PRIVATE_KEY')
+
+APPLE_CLIENT_SECRET = ("-----BEGIN PRIVATE KEY-----\n"
+                       f"{APPLE_PRIVATE_KEY}\n"
+                       "-----END PRIVATE KEY-----")
+APPLE_KEY_ID = os.getenv('APPLE_KEY_ID')
+APPLE_TEAM_ID = os.getenv('APPLE_TEAM_ID')
+
 security = HTTPBearer()
 
 if not SECRET_KEY or not ALGORITHM:
@@ -75,8 +83,6 @@ def auth_access_wrapper(auth: HTTPAuthorizationCredentials = Depends(security)):
 def auth_refresh_wrapper(auth: HTTPAuthorizationCredentials = Depends(security)):
     return decode_refresh_token(auth.credentials)
 
-APPLE_CLIENT_SECRET="-----BEGIN PRIVATE KEY-----\nMIGTAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBHkwdwIBAQQgxo8hO7L5VNWIdUL/WSKk3xBjHCqd5f0NscPw7ZYxzkagCgYIKoZIzj0DAQehRANCAARmoPoS7s0xDt7rDjjllmeIc4poIBujC+DFp5tIlw3ep3MdOLM3p3ljYeUHo3s4tpWAO1ke69NKo7KvM3T6P2iC\n-----END PRIVATE KEY-----"
-
 
 def create_apple_client_secret():
     alg = "ES256"
@@ -87,9 +93,9 @@ def create_apple_client_secret():
         "sub": "com.baker.eggtart.in",
         "exp": int(expire.timestamp()),
         "iat": int(issued_at.timestamp()),
-        "iss": "SUMATJC294",
+        "iss": APPLE_TEAM_ID,
         "aud": "https://appleid.apple.com"
     }, APPLE_CLIENT_SECRET, algorithm=alg, headers={
         "alg": alg,
-        "kid": "6QR4HWWN33"
+        "kid": APPLE_KEY_ID
     })

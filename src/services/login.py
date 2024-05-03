@@ -5,6 +5,7 @@ from fastapi import Depends, HTTPException
 from jose import jwt
 
 from enums import SocialProvider
+from errors.exceptions import EntityNotFoundException, CustomException
 from models.token import BaseTokenDto
 import httpx
 from models import kakaologinapi
@@ -58,14 +59,15 @@ class LoginService:
 
         return user.id
 
-    def handle_apple_login(self, code: str, id_token: str):
+    def handle_apple_login(self, code: str):
         url = "https://appleid.apple.com/auth/token"
         data = {
-            "client_id": "com.baker.eggtart.web",
+            "client_id": "com.baker.eggtart",
             "code": code,
             "grant_type": "authorization_code",
             "client_secret": create_apple_client_secret(),
-            "redirect_uri": "https://api.eggtart.in/login/apple"
+            "token_type_hint": "refresh_token"
+            # "redirect_uri": "https://api.eggtart.in/login/apple"
         }
         res = httpx.post(url, headers={
             "Content-Type": "application/x-www-form-urlencoded"
@@ -90,3 +92,31 @@ class LoginService:
                 self.user_repository.create_or_update(user)
 
         return user.id
+
+    def handle_apple_sign_out(self, user_id) -> None:
+        user_info = self.user_repository.find_by_id(user_id)
+        if user_info is None:
+            raise EntityNotFoundException(User, user_id=user_id)
+        if user_info.social_provider != SocialProvider.KAKAO:
+            raise CustomException("Invalid social provider")
+
+        url = "https://appleid.apple.com/auth/revoke"
+        data = {
+            "client_id": "com.baker.eggtart",
+            "client_secret": create_apple_client_secret(),
+            "token": user_info.apple_refresh_token
+        }
+        res = httpx.post(
+            url=url,
+            data=data,
+            headers={
+                "Content-Type": "application/x-www-form-urlencoded"
+            }
+        )
+
+        if res.status_code != 200:
+            raise Exception("Sign-out Failed")
+        with self.transaction:
+            user_info.is_deleted = True
+            self.user_repository.create_or_update(user_info)
+
