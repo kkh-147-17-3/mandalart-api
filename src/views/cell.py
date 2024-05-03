@@ -46,7 +46,7 @@ class CellView(AuthView):
         return self.cell_service.get_by_id(self.user_id, cell_id)
 
     @router.get("/cell/{cell_id}/children", summary="특정 셀의 하위 셀 정보를 불러옵니다.", tags=['cell'])
-    def get_cell_info(self, cell_id: int) -> list[GetCellDto]:
+    def get_cell_children(self, cell_id: int) -> list[GetCellDto]:
         return self.cell_service.get_children_cells_by_id(self.user_id, cell_id)
 
     @router.delete("/cell/{cell_id}", summary="cell 의 내용을 전부 삭제합니다(초기화).", tags=["cell"],
