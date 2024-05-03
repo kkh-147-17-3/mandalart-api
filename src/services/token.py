@@ -7,7 +7,7 @@ from fastapi import HTTPException, Depends
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from jose import jwt
 
-from errors.exceptions import MissingEnvVarException
+from errors.exceptions import MissingEnvVarException, InvalidJwtException
 
 load_dotenv('src/../.env')
 
@@ -29,24 +29,27 @@ if not SECRET_KEY or not ALGORITHM:
 
 def create_access_token(user_id: int, expires_delta: timedelta | None = None) -> str:
     to_encode: Dict[str, Any] = {"user_id": user_id}
+    now = datetime.now(tz=timezone.utc)
     if expires_delta:
-        expire = datetime.now() + expires_delta
+        expire = now + expires_delta
     else:
-        expire = datetime.now() + timedelta(days=1)
-    to_encode.update({"exp": expire})
+        expire = now + timedelta(days=1)
+    to_encode.update({"exp": expire.replace(tzinfo=timezone.utc)})
     to_encode.update({"sub": "access_token"})
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
 
 
 def create_refresh_token(user_id: int, expires_delta: timedelta | None = None) -> str:
+    now = datetime.now(tz=timezone.utc)
+
     if expires_delta:
-        expire = datetime.now() + expires_delta
+        expire = now + expires_delta
     else:
-        expire = datetime.now() + timedelta(days=30)
+        expire = now + timedelta(days=30)
     encoded_jwt = jwt.encode({
         "sub": "refresh_token",
-        "exp": expire,
+        "exp": expire.replace(tzinfo=timezone.utc),
         "user_id": user_id
     }, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
@@ -56,24 +59,28 @@ def decode_access_token(token):
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=ALGORITHM)
         if payload['sub'] != "access_token":
-            raise HTTPException(status_code=401, detail='Invalid token')
+            raise InvalidJwtException(code=40101, msg='Invalid token')
         return payload['user_id']
     except jwt.ExpiredSignatureError:
-        raise HTTPException(status_code=401, detail='Signature has expired')
-    except jwt.JWTClaimsError as _:
-        raise HTTPException(status_code=401, detail='Invalid token')
+        raise InvalidJwtException(code=40102, msg='Signature has been expired')
+    except jwt.JWTClaimsError:
+        raise InvalidJwtException(code=40103, msg='Invalid token')
+    except Exception as e:
+        raise InvalidJwtException(code=40104, msg=str(e))
 
 
 def decode_refresh_token(token) -> int:
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=ALGORITHM)
         if payload['sub'] != "refresh_token":
-            raise HTTPException(status_code=401, detail='Invalid token')
+            raise InvalidJwtException(code=40101, msg='Invalid token')
         return payload['user_id']
     except jwt.ExpiredSignatureError:
-        raise HTTPException(status_code=401, detail='Signature has been expired')
+        raise InvalidJwtException(code=40102, msg='Signature has been expired')
     except jwt.JWTClaimsError:
-        raise HTTPException(status_code=401, detail='Invalid token')
+        raise InvalidJwtException(code=40103, msg='Invalid token')
+    except Exception as e:
+        raise InvalidJwtException(code=40104, msg=str(e))
 
 
 def auth_access_wrapper(auth: HTTPAuthorizationCredentials = Depends(security)):

@@ -42,8 +42,8 @@ class Cell(Base):
 
     @orm.validates('color')
     def validate_color(self, _, color):
-        p = re.compile('([0-9a-fA-F]{2}){4}')
+        p = re.compile('([0-9a-fA-F]{2}){3}')
 
-        if not p.match(color):
+        if color is not None and not p.match(color):
             raise ValueError(f'Invalid color {color}')
         return color

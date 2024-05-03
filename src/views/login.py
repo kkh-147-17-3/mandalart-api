@@ -22,8 +22,9 @@ class LoginView:
                             " (유효기간: access token - 1일, refresh token - 30일)<br/>"
                             "*카카오 닉네임이 자동으로 서비스 닉네임으로 저장됩니다."
                 )
-    def kakao_login(self, access_token: Annotated[str, Query(alias="accessToken")]) -> BaseTokenDto:
-        return self.login_service.handle_login(access_token, "KAKAO")
+    def kakao_login(self, access_token: Annotated[str, Query(alias="accessToken")],
+                    short: Annotated[bool, Query()] = False) -> BaseTokenDto:
+        return self.login_service.handle_login(access_token, "KAKAO", short)
 
     @router.get("/login/apple")
     def apple_login(self, code: str):

@@ -1,21 +1,25 @@
+import atexit
+import logging
 import os
-import pkgutil
 from contextlib import asynccontextmanager
 from datetime import datetime
 import traceback
-from typing import Any
+from logging.handlers import QueueHandler
+from typing import Any, Callable, Awaitable
 
 from dotenv import load_dotenv
 from fastapi import FastAPI, Request
-from fastapi.exceptions import ValidationException, RequestValidationError, ResponseValidationError
+from fastapi.exceptions import ValidationException, RequestValidationError, ResponseValidationError, HTTPException
 from fastapi.responses import JSONResponse
 from fastapi.encoders import ENCODERS_BY_TYPE
 from starlette import status
 from starlette.middleware.cors import CORSMiddleware
+from starlette.responses import Response, StreamingResponse
 
 from database import Base, engine
-from errors.exceptions import EntityNotFoundException, UnauthorizedException
+from errors.exceptions import EntityNotFoundException, UnauthorizedException, InvalidJwtException
 from models.response import ErrorResponse
+from scheduler import scheduler
 from views import routers
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -27,6 +31,11 @@ Base.metadata.create_all(bind=engine)
 @asynccontextmanager
 async def lifespan(_: FastAPI):
     ENCODERS_BY_TYPE[datetime] = lambda date_obj: date_obj.strftime("%Y-%m-%d %H:%M:%S")
+    queue_handler = logging.getHandlerByName('queue_handler')
+    if queue_handler is not None:
+        queue_handler.listener.start()  # type: ignore
+        atexit.register(queue_handler.listener.stop)  # type: ignore
+    scheduler.start()
     yield
 
 
@@ -64,7 +73,7 @@ async def unauthorized_exception_handler(_: Request, exc: UnauthorizedException)
     res_code = status.HTTP_401_UNAUTHORIZED
     return JSONResponse(
         status_code=res_code,
-        content={"status": res_code, "data": None, "message": exc.msg}
+        content={"status": res_code, "message": exc.msg}
     )
 
 
@@ -73,7 +82,16 @@ async def entity_not_found_exception_handler(_: Request, exc: EntityNotFoundExce
     res_code = status.HTTP_404_NOT_FOUND
     return JSONResponse(
         status_code=res_code,
-        content={"status": res_code, "data": None, "message": str(exc)}
+        content={"status": res_code, "message": str(exc)}
+    )
+
+
+@app.exception_handler(InvalidJwtException)
+async def invalid_jwt_exception_handler(_: Request, exc: InvalidJwtException):
+    res_code = status.HTTP_401_UNAUTHORIZED
+    return JSONResponse(
+        status_code=res_code,
+        content={"status": exc.code, "message": str(exc)}
     )
 
 
@@ -84,3 +102,26 @@ async def general_exception_handler(_: Request, exc: Exception):
         status_code=res_code,
         content={"status": res_code, "data": traceback.format_exc(5), "message": str(exc)}
     )
+
+
+logger = logging.getLogger("main")
+
+# @app.middleware('http')
+# async def log_api_request_and_response(request: Request, call_next: Callable[[Any], Awaitable[StreamingResponse]]):
+#     response = await call_next(request)
+#     response_body = b""
+#     async for chunk in response.body_iterator:
+#         response_body += chunk
+#     logger.info({
+#         "method": request.method,
+#         "url": request.url,
+#         "headers": request.headers,
+#         "query_params": request.query_params,
+#         "path_params": request.path_params,
+#         "request_body": await request.body(),
+#         "response_status": response.status_code,
+#         "response_headers": response.headers,
+#         "response_body": response_body
+#     })
+#     return Response(content=response_body, status_code=response.status_code,
+#                     headers=dict(response.headers), media_type=response.media_type)
