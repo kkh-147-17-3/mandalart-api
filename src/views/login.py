@@ -6,6 +6,7 @@ from fastapi import Depends, Query
 
 from models.token import BaseTokenDto
 from services.login import LoginService
+from services.token import auth_access_wrapper
 
 router = InferringRouter()
 
@@ -24,3 +25,11 @@ class LoginView:
     def kakao_login(self, access_token: Annotated[str, Query(alias="accessToken")],
                     short: Annotated[bool, Query()] = False) -> BaseTokenDto:
         return self.login_service.handle_login(access_token, "KAKAO", short)
+
+    @router.get("/login/apple")
+    def apple_login(self, code: str):
+        return self.login_service.handle_apple_login(code)
+
+    @router.post("/sign-out/apple")
+    def sign_out_apple(self, user_id: Annotated[int, Depends(auth_access_wrapper)]):
+        return self.login_service.handle_apple_sign_out(user_id)
