@@ -68,4 +68,4 @@ class SheetService:
         step_2_cells = step_1_cell.children
         depth_1_cells = list(step_2_cells)
         depth_1_cells.insert(4, step_1_cell)
-        return GetSheetInfoDto(**sheet.__dict__, depth_1_cells=[GetCellDto(**cell.__dict__) for cell in depth_1_cells])
+        return GetSheetInfoDto(**sheet.__dict__, depth_1_cells=[GetCellDto.from_orm(cell) for cell in depth_1_cells])

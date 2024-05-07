@@ -26,6 +26,10 @@
          alt="카카오 로그인 버튼"/>
 </a>
 <p id="token-result"></p>
+
+<strong>access-token: </strong><div class="access-token"></div>
+<strong>refresh-token: </strong><div class="refresh-token"></div>
+
 <button class="api-btn" onclick="requestUserInfo()" style="visibility:hidden">사용자 정보 가져오기</button>
 <div id="appleid-signin" data-color="black" data-border="true" data-type="sign in"></div>
 <script type="text/javascript"
@@ -95,6 +99,9 @@
     const requestUserInfo = async () => {
         const accessToken = window.localStorage.getItem('accessToken')
         const res = await fetch(`http://localhost:8000/login/kakao?accessToken=${accessToken}`);
+        const token = await res.json()
+        document.querySelector('.access-token').innerText = token['access_token']
+        document.querySelector('.refresh-token').innerText = token['refresh_token']
     }
 </script>
 </body>
