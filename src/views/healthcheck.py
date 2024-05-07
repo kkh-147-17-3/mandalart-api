@@ -9,6 +9,7 @@ from starlette.templating import Jinja2Templates
 router = APIRouter()
 templates = Jinja2Templates(directory="src/templates")
 
+
 @router.get("/")
 async def healthcheck() -> Dict[str, str | None]:
     flag = os.environ.get("DEPLOYMENT_FLAG")
