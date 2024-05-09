@@ -136,5 +136,7 @@ class CellService:
         if cell.sheet.owner_id != user_id:
             raise UnauthorizedException()
 
-        return [GetCellDto.from_orm(child) for child in cell.children]
+        result = [GetCellDto.from_orm(child) for child in cell.children]
+        result.insert(4, GetCellDto.from_orm(cell))
 
+        return result
