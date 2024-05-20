@@ -29,6 +29,9 @@ def mock_create_or_update(cell: Cell):
                  enumerate(cell.todos)]
         cell.todos = todos
 
+    for child in cell.children:
+        mock_create_or_update(child)
+
     return None
 
 
@@ -108,16 +111,16 @@ def test_update_cell_success(mock_service):
             is_completed=False
         )
         mock_cell_repo.find_by_id.return_value = original_cell
-    # updated_cell = Cell(
-    #     id=cell_id,
-    #     sheet=Sheet(id=1, owner_id=user_id),
-    #     color=data.color,
-    #     is_completed=data.is_completed,
-    #     goal=data.goal,
-    #     todos=[
-    #
-    #     ]
-    # )
+        # updated_cell = Cell(
+        #     id=cell_id,
+        #     sheet=Sheet(id=1, owner_id=user_id),
+        #     color=data.color,
+        #     is_completed=data.is_completed,
+        #     goal=data.goal,
+        #     todos=[
+        #
+        #     ]
+        # )
         mock_cell_repo.create_or_update.side_effect = mock_create_or_update
 
         try:
@@ -164,6 +167,51 @@ def test_get_by_sheet_id_and_depth_and_parent_order(mock_service):
             assert result[0].step == depth + 1
             assert result[7].id == 106
             assert result[7].step == depth + 1
+
+        except Exception:
+            assert False
+
+
+def test_delete_by_id(mock_service):
+    mock_cell_repo = MagicMock(spec=CellRepository)
+    mock_transaction = MagicMock(spec=Transaction)
+
+    with (
+        patch.object(mock_service, 'cell_repo', mock_cell_repo),
+        patch.object(mock_service, 'transaction', mock_transaction)
+    ):
+        user_id = 1
+        cell_id = 10
+        depth = 2
+        parent_order = 3
+        cell = Cell(
+            id=cell_id,
+            step=depth,
+            sheet=Sheet(
+                owner_id=user_id
+            ),
+            order=parent_order,
+            is_completed=False,
+            children=[Cell(id=i + 100, step=depth + 1, order=i, is_completed=True, goal='test', color='F13231FF') for i
+                      in range(0, 8)]
+        )
+        mock_cell_repo.find_by_id.return_value = cell
+
+        try:
+            result = mock_service.delete_cell(user_id, cell_id)
+            assert result.goal is None
+            assert result.color is None
+            assert result.is_completed == False
+            assert len(result.todos) == 0
+            for child in cell.children:
+                assert child.goal is None
+                assert child.color is None
+                assert child.is_completed is False
+                assert child.todos == []
+
+            mock_cell_repo.create_or_update.assert_called_once_with(cell)
+            mock_transaction.__enter__.assert_called_once()
+            mock_transaction.__exit__.assert_called_once_with(None, None, None)
 
         except Exception:
             assert False

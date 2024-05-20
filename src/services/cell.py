@@ -75,7 +75,15 @@ class CellService:
             cell.goal = None
             cell.todos = []
             cell.is_completed = False
-            self.cell_repo.create_or_update(cell)
+            if cell.step == 2:
+                for child in cell.children:
+                    child.color = None
+                    child.goal = None
+                    child.todos = []
+                    child.is_completed = False
+
+        self.cell_repo.create_or_update(cell)
+
         return GetCellWithTodosDto.from_orm(cell)
 
     def update_cell(self, dto: UpdateCellDto, user_id: int, cell_id: int) -> GetCellWithTodosDto:

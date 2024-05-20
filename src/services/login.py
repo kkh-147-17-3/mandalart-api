@@ -55,8 +55,12 @@ class LoginService:
         social_provider = SocialProvider.KAKAO
         user = self.user_repository.find_by_social_provider_and_social_id(social_provider=social_provider,
                                                                           social_id=str(social_id))
-        if user is None:
+        try:
             nickname = res_body['kakao_account']['profile']['nickname']
+        except KeyError:
+            nickname = None
+
+        if user is None:
             user = User(social_provider=social_provider, social_id=social_id, nickname=nickname)
             with self.transaction:
                 self.user_repository.create_or_update(user)
