@@ -50,6 +50,6 @@ class CellView(AuthView):
         return self.cell_service.get_children_cells_by_id(self.user_id, cell_id)
 
     @router.delete("/cell/{cell_id}", summary="cell 의 내용을 전부 삭제합니다(초기화).", tags=["cell"],
-                   description="셀의 내용을 전부 삭제합니다. 하위 셀의 관계와 정보는 그대로 유지됩니다.")
+                   description="셀의 내용을 전부 삭제합니다. 해당 cell이 depth 2인 경우 하위 셀의 정보를 모두 초기화합니다.")
     def delete_cell(self, cell_id: int) -> GetCellWithTodosDto:
         return self.cell_service.delete_cell(self.user_id, cell_id)
