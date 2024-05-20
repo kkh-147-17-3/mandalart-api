@@ -21,9 +21,11 @@ class BaseRepository(Generic[T]):
     def find_by_id(self, entity_id: int) -> T | None:
         return self._db.query(self.__model).filter(self.__model.id == entity_id).first()
 
-    def create_or_update(self, entity: T) -> T:
+    def create_or_update(self, entity: T):
         self._db.add(entity)
-        return entity
+
+    def create_or_update_all(self, entities: list[T]):
+        self._db.bulk_save_objects(entities)
 
     def delete(self, entity: T) -> None:
         self._db.delete(entity)
