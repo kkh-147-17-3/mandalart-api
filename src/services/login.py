@@ -7,6 +7,7 @@ from jose import jwt
 
 from enums import SocialProvider
 from errors.exceptions import EntityNotFoundException, CustomException
+from lib.generateid import generate_id
 from models.token import BaseTokenDto
 import httpx
 from models import kakaologinapi
@@ -15,7 +16,10 @@ from schemas import User
 
 from services.token import create_access_token, create_refresh_token, create_apple_client_secret
 from transaction import Transaction
+import logging
 
+
+logger = logging.getLogger("main")
 
 def get_token(user_id: int, short: bool = False) -> BaseTokenDto:
     access_token_timedelta = datetime.timedelta(minutes=1) if short else None
@@ -81,17 +85,18 @@ class LoginService:
             "Content-Type": "application/x-www-form-urlencoded"
         }, data=data)
         if res.status_code != 200:
-            raise Exception("Login Failed")
+            raise Exception(res.json().__str__)
         res_body = res.json()
         id_token = res_body['id_token']
         refresh_token = res_body['refresh_token']
-        decoded_token = jwt.decode(id_token, options={'verify_signature': False})
+        decoded_token = jwt.get_unverified_claims(id_token)
+        logger.debug(decoded_token)
         social_id = decoded_token['sub']
         social_provider = SocialProvider.APPLE
         user = self.user_repository.find_by_social_provider_and_social_id(social_provider=social_provider,
                                                                           social_id=str(social_id))
         if user is None:
-            nickname = decoded_token['name']
+            nickname = decoded_token['name'] if 'name' in decoded_token else generate_id()
             user = User(social_provider=social_provider,
                         social_id=social_id,
                         nickname=nickname,
@@ -99,7 +104,7 @@ class LoginService:
             with self.transaction:
                 self.user_repository.create_or_update(user)
 
-        return user.id
+        return get_token(user.id)
 
     def handle_apple_sign_out(self, user_id) -> None:
         user_info = self.user_repository.find_by_id(user_id)
