@@ -97,7 +97,7 @@ def create_apple_client_secret():
     expire = datetime.now() + timedelta(days=30)
 
     return jwt.encode({
-        "sub": "com.baker.eggtart.in",
+        "sub": "com.baker.eggtart",
         "exp": int(expire.timestamp()),
         "iat": int(issued_at.timestamp()),
         "iss": APPLE_TEAM_ID,
