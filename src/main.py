@@ -4,21 +4,23 @@ import os
 from contextlib import asynccontextmanager
 from datetime import datetime
 import traceback
-from logging.handlers import QueueHandler
-from typing import Any, Callable, Awaitable
+
+from fastapi_oauth2.config import OAuth2Config
+from fastapi_oauth2.middleware import OAuth2Middleware
+from fastapi_oauth2.router import router as oauth2_router
 
 from dotenv import load_dotenv
 from fastapi import FastAPI, Request
-from fastapi.exceptions import ValidationException, RequestValidationError, ResponseValidationError, HTTPException
+from fastapi.exceptions import ValidationException, RequestValidationError
 from fastapi.responses import JSONResponse
 from fastapi.encoders import ENCODERS_BY_TYPE
 from starlette import status
 from starlette.middleware.cors import CORSMiddleware
-from starlette.responses import Response, StreamingResponse
 
 from database import Base, engine
 from errors.exceptions import EntityNotFoundException, UnauthorizedException, InvalidJwtException
 from models.response import ErrorResponse
+from oauth import on_auth, oauth2_config
 from scheduler import scheduler
 from views import routers
 
@@ -47,11 +49,10 @@ app = FastAPI(
         422: {"status": 422, "description": "Validation Error", "model": ErrorResponse}
     }
 )
-# app.include_router(oauth2_router)
+
 for router in routers:
     app.include_router(router)
 
-# app.add_middleware(OAuth2Middleware, config=oauth2_config, callback=on_auth)
 app.add_middleware(CORSMiddleware,
                    allow_origins=["*"],
                    allow_credentials=True,

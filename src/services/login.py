@@ -1,6 +1,7 @@
 import datetime
+import os
 from http import HTTPStatus
-from typing import Annotated
+from typing import Annotated, Any
 
 from fastapi import Depends, HTTPException
 from jose import jwt
@@ -18,8 +19,8 @@ from services.token import create_access_token, create_refresh_token, create_app
 from transaction import Transaction
 import logging
 
-
 logger = logging.getLogger("main")
+
 
 def get_token(user_id: int, short: bool = False) -> BaseTokenDto:
     access_token_timedelta = datetime.timedelta(minutes=1) if short else None
@@ -135,3 +136,32 @@ class LoginService:
 
         with self.transaction:
             self.user_repository.create_or_update(user_info)
+
+    def handle_oauth_login(self, code: str, param: SocialProvider) -> BaseTokenDto:
+        if param == SocialProvider.KAKAO:
+            token = self.get_kakao_oauth_token(code)
+            user_id = self.request_kakao_user_info(token)
+            return get_token(user_id)
+        else:
+            raise HTTPException(status_code=HTTPStatus.UNAUTHORIZED)
+
+    def get_kakao_oauth_token(self, code: str) -> str:
+        if not code.strip():
+            raise CustomException("code is not valid")
+
+        base_url = "https://kauth.kakao.com/oauth/token"
+        res = httpx.post(base_url, headers={
+            'Content-Type': 'application/x-www-form-urlencoded'
+        }, data={
+            'grant_type': 'authorization_code',
+            'code': code,
+            'client_id': os.getenv('KAKAO_CLIENT_ID'),
+            'redirect_uri': os.getenv('KAKAO_REDIRECT_URI'),
+            'client_secret': os.getenv('KAKAO_CLIENT_SECRET'),
+        })
+
+        if res.status_code != HTTPStatus.OK:
+            raise CustomException(res.json().__str__)
+
+        res_body = res.json()
+        return res_body["access_token"]

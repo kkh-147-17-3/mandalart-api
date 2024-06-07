@@ -3,6 +3,8 @@ from typing import Annotated
 from fastapi import Depends, Query
 from fastapi_utils.cbv import cbv
 from fastapi_utils.inferring_router import InferringRouter
+from starlette.requests import Request
+from starlette.responses import Response
 
 from models.token import BaseTokenDto
 from services.token import auth_refresh_wrapper

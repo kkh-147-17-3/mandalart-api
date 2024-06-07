@@ -4,7 +4,9 @@ from database import Base
 
 
 class CustomException(Exception):
-
+    """
+    커스텀 예외
+    """
     def __init__(self, msg: str | None = None):
         self.msg = msg
 
