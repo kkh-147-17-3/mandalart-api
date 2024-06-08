@@ -99,6 +99,7 @@ async def invalid_jwt_exception_handler(_: Request, exc: InvalidJwtException):
 @app.exception_handler(Exception)
 async def general_exception_handler(_: Request, exc: Exception):
     res_code = status.HTTP_500_INTERNAL_SERVER_ERROR
+    print(exc)
     return JSONResponse(
         status_code=res_code,
         content={"status": res_code, "data": traceback.format_exc(5), "message": str(exc)}

@@ -4,6 +4,7 @@ from fastapi_utils.cbv import cbv
 from fastapi_utils.inferring_router import InferringRouter
 from fastapi import Depends, Query
 
+from enums import SocialProvider
 from models.token import BaseTokenDto
 from services.login import LoginService
 from services.token import auth_access_wrapper
@@ -17,7 +18,7 @@ class OAuthLoginView:
 
     @router.get("/oauth/kakao", tags=["oauth"])
     def kakao_login(self, code: Annotated[str, Query()]) -> BaseTokenDto:
-        return self.login_service.handle_oauth_login(code, "KAKAO")
+        return self.login_service.handle_oauth_login(code,SocialProvider.KAKAO)
 
     @router.get("/login/apple")
     def apple_login(self, code: str):

@@ -159,7 +159,7 @@ class LoginService:
             'redirect_uri': os.getenv('KAKAO_REDIRECT_URI'),
             'client_secret': os.getenv('KAKAO_CLIENT_SECRET'),
         })
-
+        print(res.json())
         if res.status_code != HTTPStatus.OK:
             raise CustomException(res.json().__str__)
 
