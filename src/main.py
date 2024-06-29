@@ -49,15 +49,16 @@ app = FastAPI(
         422: {"status": 422, "description": "Validation Error", "model": ErrorResponse}
     }
 )
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 for router in routers:
     app.include_router(router)
-
-app.add_middleware(CORSMiddleware,
-                   allow_origins=["*"],
-                   allow_credentials=True,
-                   allow_methods=["*"],
-                   allow_headers=["*"], )
 
 
 @app.exception_handler(RequestValidationError)
@@ -65,6 +66,7 @@ async def validation_exception_handler(_: Request, exc: ValidationException):
     res_code = status.HTTP_422_UNPROCESSABLE_ENTITY
     return JSONResponse(
         status_code=res_code,
+        headers={"Access-Control-Allow-Origin": "*"},
         content={"status": res_code, "data": exc.errors(), "message": "Request validation error"}
     )
 
@@ -74,6 +76,7 @@ async def unauthorized_exception_handler(_: Request, exc: UnauthorizedException)
     res_code = status.HTTP_401_UNAUTHORIZED
     return JSONResponse(
         status_code=res_code,
+        headers={"Access-Control-Allow-Origin": "*"},
         content={"status": res_code, "message": exc.msg}
     )
 
@@ -83,6 +86,7 @@ async def entity_not_found_exception_handler(_: Request, exc: EntityNotFoundExce
     res_code = status.HTTP_404_NOT_FOUND
     return JSONResponse(
         status_code=res_code,
+        headers={"Access-Control-Allow-Origin": "*"},
         content={"status": res_code, "message": str(exc)}
     )
 
@@ -92,6 +96,7 @@ async def invalid_jwt_exception_handler(_: Request, exc: InvalidJwtException):
     res_code = status.HTTP_401_UNAUTHORIZED
     return JSONResponse(
         status_code=res_code,
+        headers={"Access-Control-Allow-Origin": "*"},
         content={"status": exc.code, "message": str(exc)}
     )
 
@@ -99,9 +104,9 @@ async def invalid_jwt_exception_handler(_: Request, exc: InvalidJwtException):
 @app.exception_handler(Exception)
 async def general_exception_handler(_: Request, exc: Exception):
     res_code = status.HTTP_500_INTERNAL_SERVER_ERROR
-    print(exc)
     return JSONResponse(
-        status_code=res_code,
+        status_code=200,
+        headers={"Access-Control-Allow-Origin": "*"},
         content={"status": res_code, "data": traceback.format_exc(5), "message": str(exc)}
     )
 
