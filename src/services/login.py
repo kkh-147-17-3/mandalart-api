@@ -161,7 +161,7 @@ class LoginService:
         })
         print(res.json())
         if res.status_code != HTTPStatus.OK:
-            raise CustomException(res.json().__str__)
+            raise CustomException(res.json().__str__())
 
         res_body = res.json()
         return res_body["access_token"]
