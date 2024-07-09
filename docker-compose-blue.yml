@@ -1,0 +1,21 @@
+version: "3.9"
+services:
+  mandalart:
+    # image: kkh147173/eggtart:latest
+    build: ..
+    container_name: mandalart-blue
+    ports:
+      - "8001:8000"
+    volumes:
+      - /var/log/fastapi:/var/log/fastapi
+    pull_policy: always
+    environment:
+      DEPLOYMENT_FLAG: blue
+      TZ: "Asia/Seoul"
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    networks:
+      blue:
+
+networks:
+  blue:
